@@ -1,3 +1,29 @@
 <resources>
     <string name="app_name">try</string>
+    <!-- -->
+
+    <!-- 主页 -->
+    <string name="game_topic">狼人杀辅助系统</string>
+    <string name="play">游戏开局</string>
+    <string name="identity_setting_topic">身份配置</string>
+    <string name="player_setting">玩家配置</string>
+
+    <!-- 玩家名称配置页面 -->
+    <string name="enter_name_des">此处输入玩家姓名，并按下确定</string>
+    <string name="players_list_current">当前名单</string>
+
+    <!-- 身份配置页面 -->
+    <string name="identity">输入身份</string>
+    <string name="identity_amount">输入数量</string>
+
+    <!-- 两个页面都用到 -->
+    <string name="current_setting">当前配置</string>
+    <string name="ensure">确定</string>
 </resources>
+
+<!--
+<string name=""></string>
+
+        android:text="@string/"
+
+-->

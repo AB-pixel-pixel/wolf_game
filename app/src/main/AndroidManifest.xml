@@ -10,6 +10,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Try">
         <activity
+            android:name=".identity_setting"
+            android:exported="false" />
+        <activity android:name=".player_list_setting" /> <!-- android:exported="false" -->
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
