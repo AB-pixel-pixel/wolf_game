@@ -19,9 +19,14 @@
     <!-- 两个页面都用到 -->
     <string name="current_setting">当前配置</string>
     <string name="ensure">确定</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- 游戏页面专用 -->
+    <string name="game_notice_board">公告栏</string>
 </resources>
 
-<!--
+    <!--
 <string name=""></string>
 
         android:text="@string/"
