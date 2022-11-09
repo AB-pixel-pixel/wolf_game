@@ -61,10 +61,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // 判断人数和身份的数量是否匹配
     private boolean check_condition()
     {
-        SharedPreferences player_list_param_ = getSharedPreferences("player_list",MODE_PRIVATE);;
-        SharedPreferences identity_saved_param_ = getSharedPreferences("last_game_setting",MODE_PRIVATE);;
+        SharedPreferences player_list_param_ = getSharedPreferences("player_list",MODE_PRIVATE);
+        SharedPreferences identity_saved_param_ = getSharedPreferences("last_game_setting",MODE_PRIVATE);
         int player_num = player_list_param_.getAll().values().stream().collect(Collectors.summingInt(i-> (int) i));
-        int identity_num = player_list_param_.getAll().values().stream().collect(Collectors.summingInt(i-> (int) i));
+        int identity_num = identity_saved_param_.getAll().values().stream().collect(Collectors.summingInt(i-> (int) i));
         System.out.println((player_num==identity_num));
         return (player_num==identity_num);//player_list_param_ = getSharedPreferences("")
     }

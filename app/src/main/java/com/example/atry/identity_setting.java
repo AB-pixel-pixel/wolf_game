@@ -164,7 +164,7 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
                 int index = identity_keys_.indexOf(identity);
                 identity_visual_list.remove(index);
                 // 后插入
-                identity_visual_list.add(index,identity+"   "+str_number);
+                identity_visual_list.add(index,str_number+identity);
 
                 // 刷新页面
                 identity_adapter_ = new ArrayAdapter(identity_setting.this, android.R.layout.simple_list_item_1, identity_visual_list);
@@ -175,7 +175,7 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
             else
             {
                 // 无身份重复的操作
-                identity_visual_list.add(identity+"   "+identity_number_input_.getText().toString());
+                identity_visual_list.add(str_number+identity);
                 identity_keys_.add(identity);
             }
 

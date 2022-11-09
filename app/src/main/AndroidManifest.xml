@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Try">
         <activity
-            android:name=".play"
+            android:name=".game"
             android:exported="false" />
         <activity
             android:name=".identity_setting"

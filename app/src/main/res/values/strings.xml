@@ -24,6 +24,8 @@
 
     <!-- 游戏页面专用 -->
     <string name="game_notice_board">公告栏</string>
+    <string name="time">时间</string>
+
 </resources>
 
     <!--
