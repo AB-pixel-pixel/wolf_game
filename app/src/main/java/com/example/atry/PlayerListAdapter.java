@@ -7,16 +7,20 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.PlayerListViewHolder>{
 
-    private PlayerState player_states_;
+
     private List<String> player_state_list_;
     private Context context_;
+    private PlayerListViewHolder view_holder_;
 
-    public PlayerListAdapter(PlayerState player_states,Context context) {
-        this.player_states_ = player_states;
+
+    public PlayerListAdapter(List<String> player_states,Context context) {
+        this.player_state_list_ = player_states;
         context_ = context;
     }
 
@@ -24,18 +28,18 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
     @NonNull
     @Override
     public PlayerListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = View.inflate(context_,R.layout.fragment_player_state_list,null);
+        View view = View.inflate(context_,R.layout.player_state_list_item,null);
         return new PlayerListViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PlayerListViewHolder holder, int position) {
-        holder.tv.setText(player_states_.getVisual_player_data_list_().get(position));
+        holder.tv.setText(player_state_list_.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return  player_states_ ==null ? 0 : player_states_.getVisual_player_data_list_().size();
+        return  player_state_list_ ==null ? 0 : player_state_list_.size();
     }
 
 
@@ -44,10 +48,8 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         private TextView tv;
 
         public PlayerListViewHolder(@NonNull View itemView) {
-
             super(itemView);
-            tv = itemView.findViewById(R.id.player_state_list);
-
+            tv = itemView.findViewById(R.id.player_state_item);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -2,6 +2,8 @@ package com.example.atry;
 
 
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,9 +14,9 @@ public class PlayerState{
     public final static Map<Integer,String> int2identity_map = new HashMap<>();
     public final static Map<Integer,String> int2state_map = new HashMap<>();
     //
-    private List<civilians> role_list_;
+    private static List<civilians> role_list_;
     private static List<Integer> night_states_;
-    private static List<String> visual_player_data_list_;
+    public static List<String> visual_player_data_list_;
 
     public PlayerState(List<Integer> identity_list,List<String> player_str_list){
         // 方便数字转为可视化的字符(身份）
@@ -86,11 +88,15 @@ public class PlayerState{
                 }
             }
         }
-        // 填充可视化数据
+        String TAG = "player_msg";
+        // 填充可视化数据并报告
         for (int i =0;i<player_str_list.size();i++)
         {
-            visual_player_data_list_.add(role_list_.get(i).toVisualText());
+            String temp_data = role_list_.get(i).toVisualText();
+            visual_player_data_list_.add(temp_data);
+            Log.i(TAG,temp_data);
         }
+
     }
 
     public List<String> getVisual_player_data_list_()

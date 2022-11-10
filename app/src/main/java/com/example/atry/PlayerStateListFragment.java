@@ -1,30 +1,31 @@
 package com.example.atry;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+
+import java.util.List;
 
 
 public class PlayerStateListFragment extends Fragment {
 
     // 存储用的ViewModel
     private PlayerStateViewModel player_state_view_model_;
-
     // 玩家的状态
     private PlayerState player_state_;
-
-    private View root_;
+    private RecyclerView player_state_list_RV_;
+    private PlayerListAdapter adapter_;
+    private Context context_;
+    //
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,21 +46,29 @@ public class PlayerStateListFragment extends Fragment {
         // TODO 美化一些变量的调用
 
         // 读取存储的数据
-        player_state_view_model_ = new ViewModelProvider(requireActivity()).get(PlayerStateViewModel.class);
-        player_state_ = player_state_view_model_.getSelectedItem().getValue();
+//        player_state_view_model_ = new ViewModelProvider(requireActivity()).get(PlayerStateViewModel.class);
+//        player_state_ = player_state_view_model_.getSelectedItem().getValue();
+        View base_view = inflater.inflate(R.layout.fragment_player_state_list,container,false);
+        context_ = base_view.getContext();
 
+        //操作
+        List<String>  visual_player_data_list= PlayerState.visual_player_data_list_ ;
 
-        RecyclerView player_state_list_RV = root_.findViewById(R.id.player_state_list);
-
-
+        player_state_list_RV_ = base_view.findViewById(R.id.player_state_list_recycler_view);
+        if (player_state_list_RV_ ==null)
+        {
+            System.out.println("player_state_list_RV is null");
+        }
         // 初始化 Adapter
-        PlayerListAdapter adapter = new PlayerListAdapter(player_state_,this.getContext());
-        player_state_list_RV.setAdapter(adapter);
+        adapter_ = new PlayerListAdapter(visual_player_data_list,this.getContext());
+        player_state_list_RV_.setAdapter(adapter_);
 
-        GridLayoutManager gridLayoutManager= new GridLayoutManager(this.getContext(),2);
-        player_state_list_RV.setLayoutManager(gridLayoutManager);
 
-        adapter.setRecyclerItemClickListener(new PlayerListAdapter.OnRecyclerItemClickListener() {
+        GridLayoutManager gridLayoutManager= new GridLayoutManager(context_,1);
+        player_state_list_RV_.setLayoutManager(gridLayoutManager);
+
+
+        adapter_.setRecyclerItemClickListener(new PlayerListAdapter.OnRecyclerItemClickListener() {
             @Override
             public void onRecyclerItemClick(int position) {
                 System.out.println(position);
@@ -67,12 +76,7 @@ public class PlayerStateListFragment extends Fragment {
         });
 
 
-        if (root_ == null)
-        {
-            root_ = inflater.inflate(R.layout.fragment_player_state_list,container,false);
-        }
-
-        return root_;
+        return base_view;
     }
 
 }

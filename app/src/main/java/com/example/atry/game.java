@@ -1,13 +1,10 @@
 package com.example.atry;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 
-import android.content.ClipData;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -41,7 +38,7 @@ public class game extends AppCompatActivity {
 
     // 玩家状态（数据库）
     private PlayerState player_state_;
-
+    private PlayerStateListFragment plyaer_state_list_fragment_;
     // 关联
     private PlayerStateViewModel saved_player_state_;
 
@@ -53,10 +50,14 @@ public class game extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         init();
+        plyaer_state_list_fragment_ = new PlayerStateListFragment(); // 实例化Fragment
+        getSupportFragmentManager().beginTransaction().add(R.id.player_state_list_fragment, plyaer_state_list_fragment_,"").commitAllowingStateLoss(); // 将fragment添加到activity
+
     }
 
     private void init()
     {
+
         // 使用SharedPreferences存储身份配置
         SharedPreferences identity_saved_param_ = getSharedPreferences("last_game_setting",MODE_PRIVATE);
         SharedPreferences player_list_param_ = getSharedPreferences("player_list",MODE_PRIVATE);
@@ -96,8 +97,8 @@ public class game extends AppCompatActivity {
         player_state_ = new PlayerState(identity_int_list_,player_str_list_);
 
         // 将玩家信息放入内存，方便和fragment交流
-        saved_player_state_ = new ViewModelProvider(this).get(PlayerStateViewModel.class);
-        saved_player_state_.selectItem(player_state_);
+//        saved_player_state_ = new ViewModelProvider(this).get(PlayerStateViewModel.class);
+//        saved_player_state_.selectItem(player_state_);
 //        saved_player_state_.getSelectedItem().observe(this,item->{
 //            // Perform an action with the latest item data
 //
