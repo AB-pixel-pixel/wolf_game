@@ -16,12 +16,12 @@ import android.view.ViewGroup;
 import java.util.List;
 
 
-public class PlayerStateListFragment extends Fragment {
+public class GamePlayerListFragment extends Fragment {
 
     // 存储用的ViewModel
     private PlayerStateViewModel player_state_view_model_;
     // 玩家的状态
-    private PlayerState player_state_;
+    private PlayerStateManager player_state_;
     private RecyclerView player_state_list_RV_;
     private PlayerListAdapter adapter_;
     private Context context_;
@@ -46,19 +46,13 @@ public class PlayerStateListFragment extends Fragment {
         // TODO 美化一些变量的调用
 
         // 读取存储的数据
-//        player_state_view_model_ = new ViewModelProvider(requireActivity()).get(PlayerStateViewModel.class);
-//        player_state_ = player_state_view_model_.getSelectedItem().getValue();
         View base_view = inflater.inflate(R.layout.fragment_player_state_list,container,false);
         context_ = base_view.getContext();
 
         //操作
-        List<String>  visual_player_data_list= PlayerState.visual_player_data_list_ ;
+        List<String>  visual_player_data_list= PlayerStateManager.visual_player_data_list_ ;
 
         player_state_list_RV_ = base_view.findViewById(R.id.player_state_list_recycler_view);
-        if (player_state_list_RV_ ==null)
-        {
-            System.out.println("player_state_list_RV is null");
-        }
         // 初始化 Adapter
         adapter_ = new PlayerListAdapter(visual_player_data_list,this.getContext());
         player_state_list_RV_.setAdapter(adapter_);

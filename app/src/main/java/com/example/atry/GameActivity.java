@@ -17,28 +17,28 @@ import java.util.Map;
 
 // 与Fragment通信
 class PlayerStateViewModel extends ViewModel{
-    private final MutableLiveData<PlayerState> saved_player_state_ = new MutableLiveData<PlayerState>();
+    private final MutableLiveData<PlayerStateManager> saved_player_state_ = new MutableLiveData<PlayerStateManager>();
 
-    public void selectItem(PlayerState player_state){
+    public void selectItem(PlayerStateManager player_state){
         saved_player_state_.setValue(player_state);
     }
 
-    public LiveData<PlayerState> getSelectedItem(){
+    public LiveData<PlayerStateManager> getSelectedItem(){
         return saved_player_state_;
     }
 }
 
 
 
-public class game extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity {
     // 关于身份和玩家的列表，以索引判断身份和玩家
     private List<String> player_str_list_;
     private List<Integer> identity_int_list_;
     private List<String> identity_str_list_;
 
     // 玩家状态（数据库）
-    private PlayerState player_state_;
-    private PlayerStateListFragment plyaer_state_list_fragment_;
+    private PlayerStateManager player_state_;
+    private GamePlayerListFragment plyaer_state_list_fragment_;
     // 关联
     private PlayerStateViewModel saved_player_state_;
 
@@ -50,7 +50,7 @@ public class game extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         init();
-        plyaer_state_list_fragment_ = new PlayerStateListFragment(); // 实例化Fragment
+        plyaer_state_list_fragment_ = new GamePlayerListFragment(); // 实例化Fragment
         getSupportFragmentManager().beginTransaction().add(R.id.player_state_list_fragment, plyaer_state_list_fragment_,"").commitAllowingStateLoss(); // 将fragment添加到activity
 
     }
@@ -64,7 +64,6 @@ public class game extends AppCompatActivity {
 
         // player_name存玩家名字，identity_str_list存放身份
         player_str_list_ = new ArrayList<String>(player_list_param_.getAll().keySet());
-        System.out.println(player_str_list_);
         identity_str_list_ = new ArrayList<>();
         identity_int_list_ = new ArrayList<>();
         Map<String,Integer> identity_number_map = new HashMap<String,Integer>((Map<? extends String, ? extends Integer>) identity_saved_param_.getAll());
@@ -94,15 +93,8 @@ public class game extends AppCompatActivity {
         identity_int_list_ = identity_str2int(identity2int_map,identity_str_list_);
 
         // 使用整理后的数据初始化玩家信息（序号，身份等）
-        player_state_ = new PlayerState(identity_int_list_,player_str_list_);
+        player_state_ = new PlayerStateManager(identity_int_list_,player_str_list_);
 
-        // 将玩家信息放入内存，方便和fragment交流
-//        saved_player_state_ = new ViewModelProvider(this).get(PlayerStateViewModel.class);
-//        saved_player_state_.selectItem(player_state_);
-//        saved_player_state_.getSelectedItem().observe(this,item->{
-//            // Perform an action with the latest item data
-//
-//        });
     }
 
 
@@ -129,30 +121,3 @@ public class game extends AppCompatActivity {
         click_id_ = id;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//@Entity
-//class player{
-//    @PrimaryKey
-//    public int id_;
-//
-//    public String name_;
-//    public String identity_;
-//    public String status_;
-//    public String
-//
-//}

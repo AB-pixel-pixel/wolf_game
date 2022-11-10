@@ -33,14 +33,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch(v.getId()){
             case R.id.players_list:
             {
-                Intent intent = new Intent(MainActivity.this, player_list_setting.class);
+                Intent intent = new Intent(MainActivity.this, PlayerSettingActivity.class);
                 startActivity(intent);
                 break;
             }
             case R.id.play:
             {
                 if(check_condition()) {
-                    Intent intent = new Intent(MainActivity.this, game.class);
+                    Intent intent = new Intent(MainActivity.this, GameActivity.class);
                     startActivity(intent);
                 }
                 else {
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             case R.id.identity_setting:
             {
-                Intent intent = new Intent(MainActivity.this, identity_setting.class);
+                Intent intent = new Intent(MainActivity.this, IdentitySettingActivity.class);
                 startActivity(intent);
                 break;
             }
@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         SharedPreferences identity_saved_param_ = getSharedPreferences("last_game_setting",MODE_PRIVATE);
         int player_num = player_list_param_.getAll().values().stream().collect(Collectors.summingInt(i-> (int) i));
         int identity_num = identity_saved_param_.getAll().values().stream().collect(Collectors.summingInt(i-> (int) i));
-        System.out.println((player_num==identity_num));
         return (player_num==identity_num);//player_list_param_ = getSharedPreferences("")
     }
 }

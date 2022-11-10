@@ -10,12 +10,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Try">
         <activity
-            android:name=".game"
+            android:name=".GameActivity"
             android:exported="false" />
         <activity
-            android:name=".identity_setting"
+            android:name=".IdentitySettingActivity"
             android:exported="false" />
-        <activity android:name=".player_list_setting" /> <!-- android:exported="false" -->
+        <activity android:name=".PlayerSettingActivity" /> <!-- android:exported="false" -->
         <activity
             android:name=".MainActivity"
             android:exported="true">

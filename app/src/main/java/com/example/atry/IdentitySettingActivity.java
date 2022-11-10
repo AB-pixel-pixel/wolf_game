@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class identity_setting extends AppCompatActivity implements View.OnClickListener {
+public class IdentitySettingActivity extends AppCompatActivity implements View.OnClickListener {
     // 用于存放配置的字典
     private SharedPreferences identity_saved_param_;
     private SharedPreferences.Editor identity_saved_param_editor_;
@@ -36,7 +36,7 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
     private EditText identity_number_input_;
     private ListView identity_list_view_;
     private Button ensure_identity_button_;
-    private final boolean test = false;
+    private final boolean test = true;
 
 
 
@@ -44,24 +44,7 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_identity_setting);
-
-
         init();
-        // 测试配置
-        if (test)
-        {
-            //  identity_map_param_.put
-            identity_saved_param_editor_.putInt("狼人",3);
-            identity_saved_param_editor_.putInt("平民",2);
-            identity_saved_param_editor_.putInt("预言家",1);
-            identity_saved_param_editor_.putInt("猎人",1);
-            identity_saved_param_editor_.putInt("女巫",1);
-            //identity_default_param_editor_.putInt("猎人",2);
-            identity_saved_param_editor_.commit();
-        }
-
-
-        //identity_list_view_.setOnItemClickListener(new AdapterView.OnItemClickListener()
     }
 
     protected void onDestroy() {
@@ -83,7 +66,22 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
 
         // 使用SharedPreferences存储身份配置
         identity_saved_param_ = getSharedPreferences("last_game_setting",MODE_PRIVATE);
+
         identity_saved_param_editor_ = identity_saved_param_.edit();
+        // 测试用：标准12人局配置
+        if (test)
+        {
+            //  12人局标准配置：预言家、女巫、猎人、守卫、4个平民、3个普通狼人以及白狼王
+            // 参考：https://baijiahao.baidu.com/s?id=1738220641116983806
+            identity_saved_param_editor_.putInt("狼人",3);
+            identity_saved_param_editor_.putInt("平民",4);
+            identity_saved_param_editor_.putInt("预言家",1);
+            identity_saved_param_editor_.putInt("猎人",1);
+            identity_saved_param_editor_.putInt("女巫",1);
+            identity_saved_param_editor_.putInt("白狼王",1);
+            identity_saved_param_editor_.putInt("守卫",1);
+            identity_saved_param_editor_.commit();
+        }
 
         // 初始化 辅助身份查重的列表
         identity_keys_ = new ArrayList<>();
@@ -99,7 +97,7 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
 
 
         // 用列表初始化 adapter
-        identity_adapter_ = new ArrayAdapter<String>(identity_setting.this,android.R.layout.simple_list_item_1,
+        identity_adapter_ = new ArrayAdapter<String>(IdentitySettingActivity.this,android.R.layout.simple_list_item_1,
                 identity_visual_list);
 
 
@@ -116,9 +114,9 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
                 // TODO： 将删除的逻辑写入同一个函数
                 // 删除元素
                 String identity_key = identity_visual_list.get(position);
-                Toast.makeText(identity_setting.this,identity_key+"删除成功", Toast.LENGTH_SHORT).show();
+                Toast.makeText(IdentitySettingActivity.this,identity_key+"删除成功", Toast.LENGTH_SHORT).show();
                 identity_visual_list.remove(position);
-                identity_adapter_ = new ArrayAdapter(identity_setting.this, android.R.layout.simple_list_item_1, identity_visual_list);
+                identity_adapter_ = new ArrayAdapter(IdentitySettingActivity.this, android.R.layout.simple_list_item_1, identity_visual_list);
 
 
                 // 刷新页面
@@ -151,7 +149,7 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
         if (identity.equals("")||str_number.equals(""))
         {
             // 不合法的元素
-            Toast.makeText(identity_setting.this,"配置添加错误，身份或者数量输入为空", Toast.LENGTH_SHORT).show();
+            Toast.makeText(IdentitySettingActivity.this,"配置添加错误，身份或者数量输入为空", Toast.LENGTH_SHORT).show();
         }
         else
         {
@@ -164,10 +162,10 @@ public class identity_setting extends AppCompatActivity implements View.OnClickL
                 int index = identity_keys_.indexOf(identity);
                 identity_visual_list.remove(index);
                 // 后插入
-                identity_visual_list.add(index,str_number+identity);
+                identity_visual_list.add(index,identity+"   "+str_number+"位");
 
                 // 刷新页面
-                identity_adapter_ = new ArrayAdapter(identity_setting.this, android.R.layout.simple_list_item_1, identity_visual_list);
+                identity_adapter_ = new ArrayAdapter(IdentitySettingActivity.this, android.R.layout.simple_list_item_1, identity_visual_list);
                 identity_adapter_.notifyDataSetChanged();
                 identity_list_view_.invalidateViews();
                 identity_list_view_.refreshDrawableState();

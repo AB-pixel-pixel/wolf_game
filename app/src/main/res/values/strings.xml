@@ -22,9 +22,16 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
-    <!-- 游戏页面专用 -->
-    <string name="game_notice_board">公告栏</string>
-    <string name="time">时间</string>
+    <!-- 游戏页面 -->
+    <!-- 最下面的按钮栏 -->
+    <string name="start_power">发动技能</string>
+    <string name="next_stage">下一阶段</string>
+
+    <!-- 最上面的公告栏 -->
+    <string name="game_notice_board">公告栏:点击确定开始游戏</string>
+    <string name="time">第一天夜晚</string>
+
+
 
 </resources>
 
