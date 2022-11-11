@@ -1,12 +1,11 @@
 package com.example.atry;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,32 +14,25 @@ import java.util.List;
 import java.util.Map;
 
 
-// 与Fragment通信
-class PlayerStateViewModel extends ViewModel{
-    private final MutableLiveData<PlayerStateManager> saved_player_state_ = new MutableLiveData<PlayerStateManager>();
 
-    public void selectItem(PlayerStateManager player_state){
-        saved_player_state_.setValue(player_state);
-    }
-
-    public LiveData<PlayerStateManager> getSelectedItem(){
-        return saved_player_state_;
-    }
-}
+//---------------------------------------------------------------------------------------------
+//
+//      GameActivity的内容
+//
+//---------------------------------------------------------------------------------------------
 
 
 
 public class GameActivity extends AppCompatActivity {
+    private static final boolean TEST = false;
     // 关于身份和玩家的列表，以索引判断身份和玩家
     private List<String> player_str_list_;
     private List<Integer> identity_int_list_;
     private List<String> identity_str_list_;
 
     // 玩家状态（数据库）
-    private PlayerStateManager player_state_;
+    private PlayerStateManager player_state_manager_;
     private GamePlayerListFragment plyaer_state_list_fragment_;
-    // 关联
-    private PlayerStateViewModel saved_player_state_;
 
     // 图标关联输入
     private int click_id_;
@@ -91,9 +83,18 @@ public class GameActivity extends AppCompatActivity {
 
         // 转换
         identity_int_list_ = identity_str2int(identity2int_map,identity_str_list_);
+        // TEST
+        if (TEST)
+        {
+            for (String i : player_str_list_) {
+                Log.i("检查player", i);
+            }
+        }
 
+
+        player_state_manager_ = new ViewModelProvider(this).get(PlayerStateManager.class);
         // 使用整理后的数据初始化玩家信息（序号，身份等）
-        player_state_ = new PlayerStateManager(identity_int_list_,player_str_list_);
+        player_state_manager_.init(identity_int_list_,player_str_list_);
 
     }
 

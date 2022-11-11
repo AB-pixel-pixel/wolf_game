@@ -18,8 +18,7 @@ import java.util.List;
 
 public class GamePlayerListFragment extends Fragment {
 
-    // 存储用的ViewModel
-    private PlayerStateViewModel player_state_view_model_;
+
     // 玩家的状态
     private PlayerStateManager player_state_;
     private RecyclerView player_state_list_RV_;

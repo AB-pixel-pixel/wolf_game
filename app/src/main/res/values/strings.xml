@@ -18,20 +18,30 @@
 
     <!-- 两个页面都用到 -->
     <string name="current_setting">当前配置</string>
-    <string name="ensure">确定</string>
+    <string name="yes">确定</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- 游戏页面 -->
     <!-- 最下面的按钮栏 -->
-    <string name="start_power">发动技能</string>
-    <string name="next_stage">下一阶段</string>
-
+    <string name="no">取消</string>
+    <string name="candidate">候选玩家</string>
     <!-- 最上面的公告栏 -->
     <string name="game_notice_board">公告栏:点击确定开始游戏</string>
     <string name="time">第一天夜晚</string>
 
+    <string name="text_rule">根据公告栏的游戏进程安排，通过点击列表中的玩家名称确定目标，“下一阶段”表示跳过当前环节。“发动能力”只有在相应的游戏阶段才能使用。点击确定开始游戏！</string>
+    <string name="text_night">夜晚请闭眼</string>
+    <string name="text_wolf">狼人请睁眼，指出你要刀的人，狼人请闭眼</string>
+    <string name="text_guard">守卫请睁眼，今晚你守卫哪个人。好的，守卫请闭眼</string>
+    <string name="text_witch">女巫请睁眼。（详情看弹窗）。好的，女巫请闭眼</string>
+    <string name="text_prophet">预言家请睁眼，选择一位玩家查验身份，好人是向上，坏人是向下，他的身份是这个，预言家请闭眼。</string>
+    <string name="text_daytime">白天,由上帝决定各种流程的进展。点击\'更多\'来发动角色的特殊能力、放逐等。点击\'下一阶段\'，进入黑夜</string>
+    <string name="text_exile">放逐（点击玩家名称后\'确定\'则该玩家被放逐，若仅是误触，则点击下一阶段）</string>
+    <string name="text_white_wolf">白狼王自爆（点击玩家名称后\'确定\'则该玩家被带走，若仅是误触，则点击下一阶段）</string>
+    <string name="text_hunter">猎人带走（点击玩家名称后\'确定\'则该玩家被带走，若仅是误触，则点击下一阶段）</string>
 
+    <!-- -->
 
 </resources>
 

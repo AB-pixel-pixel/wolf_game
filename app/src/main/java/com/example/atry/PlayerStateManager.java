@@ -2,12 +2,17 @@ package com.example.atry;
 
 
 
+import android.util.Log;
+
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PlayerStateManager {
+public class PlayerStateManager extends ViewModel {
     // TEST
     private final String TAG =  "player_msg";
     private final boolean TEST = true;
@@ -16,7 +21,7 @@ public class PlayerStateManager {
     public final static Map<Integer,String> int2identity_map = new HashMap<>();
     public final static Map<Integer,String> int2state_map = new HashMap<>();
     // 存放各种数据的列表
-    public static List<civilians> role_list_;
+    public final static List<civilians> role_list_ = new ArrayList<>();
     private static List<Integer> night_states_;
     public static List<String> visual_player_data_list_;
 
@@ -28,31 +33,27 @@ public class PlayerStateManager {
     // 9 狼人自爆 10 猎人使用能力
 
 
-    private int[] date_; // 记录时间，首元素是天数，第二个元素是当天的时间（夜晚，白天）。
+
 
 
     // 记录公告栏内容的文本,与game_stages_搭配使用
-    public static List<String> board_text_;// 各种阶段的文字提示以及说明，比如：遗言环节，发言环节，放逐环节，上警环节
+    // 各种阶段的文字提示以及说明，比如：遗言环节，发言环节，放逐环节，上警环节
+    // public static List<String> board_text_;
 
-    public PlayerStateManager(List<Integer> identity_list, List<String> player_str_list){
-
-
+    public void init(List<Integer> identity_list, List<String> player_str_list){
         // 构造数据转换的map
         init_translation_map();
+
+        // 初始化角色
+        init_role_list(identity_list,player_str_list);
 
         // 填充可视化数据并报告
         init_visual_player_data_list(player_str_list);
 
-        // 初始化角色
-        init_role_list(identity_list,player_str_list);
-        // 初始化文本内容
-        init_board_text();
 
         // 初始化开局情况
         // 初始化日期
-        date_ = new int[2];
-        date_[0] = 1;
-        date_[1] = 1;
+        init_data();
 
         // 初始化晚上的情况
         night_states_= new ArrayList<>();
@@ -65,6 +66,8 @@ public class PlayerStateManager {
     }// 结束构造函数
 
 
+
+
     public void start(){
         game_stage_now_ = -1;
     }
@@ -72,19 +75,54 @@ public class PlayerStateManager {
 
     //---------------------------------------------------------------------------------------------
     //
-    //      管理UI的可视化内容
+    //      管理公告栏文本的内容
     //
     //---------------------------------------------------------------------------------------------
 
-
-    /**
-     * 管理公告栏文本
-     * @param game_state
-     * @return 公告栏文本
-     */
-    public String getBoardText(int game_state){
-        return board_text_.get(game_state);
+    // **
+    // * 管理时间
+    // *
+    private List<Integer> date_; // 记录时间，首元素是天数，第二个元素是当天的时间（0:夜晚，1:白天）。
+    private void init_data(){
+        date_ = new ArrayList<>();
+        date_.add(1);
+        date_.add(0);
     }
+
+    private void update_date(){
+        if (game_stage_now_ ==0)
+        {
+            int data_now = date_.get(0)+1;
+            date_.set(0,data_now);
+        }
+        // 控制日期
+        if (game_stage_now_<5)
+        {
+            date_.set(1,0);
+        }
+        else
+        {
+            date_.set(1,1);
+        }
+    }
+
+    // 数据库
+
+    private final MutableLiveData<List<Integer>> game_board_fragment_data_ = new MutableLiveData<>();
+    // private LiveData<List<Integer>> board_fragment_data_ =
+
+    public MutableLiveData<List<Integer>> get_game_board_fragment_data_(){
+        return game_board_fragment_data_;
+    }
+
+    // 前两位为日期，后一位是游戏阶段
+    private List<Integer> temp_update_game_board_fragment_data_ = new ArrayList<>();
+    private void update_game_board_fragment_data_(){
+        temp_update_game_board_fragment_data_.addAll(date_);
+        temp_update_game_board_fragment_data_.add(game_stage_now_);
+        game_board_fragment_data_.setValue(temp_update_game_board_fragment_data_);
+    }
+
 
     //---------------------------------------------------------------------------------------------
     //
@@ -93,8 +131,10 @@ public class PlayerStateManager {
     //---------------------------------------------------------------------------------------------
 
     public void next_stage(){
-        //让流程在0到5的区间里流动
+        // 让流程在0到5的区间里流动
         game_stage_now_ = (game_stage_now_ + 1 )%6;
+        // 更新日期
+        update_date();
     }
 
     public void back_to_daytime_stage(){
@@ -136,7 +176,6 @@ public class PlayerStateManager {
 
     private void init_role_list(List<Integer> identity_list,List<String> player_str_list){
         // 设置角色身份
-        role_list_ = new ArrayList<>();
         for (int i =0;i<player_str_list.size();i++)
         {
             int identity_num = identity_list.get(i);
@@ -194,6 +233,10 @@ public class PlayerStateManager {
         visual_player_data_list_ = new ArrayList<>();
         for (int i =0;i<player_str_list.size();i++)
         {
+            if (role_list_ == null)
+            {
+                Log.i(TAG,"role_list_ null");
+            }
             String temp_data = role_list_.get(i).toVisualText();
             visual_player_data_list_.add(temp_data);
         }
@@ -201,29 +244,6 @@ public class PlayerStateManager {
 
 
 
-    private void init_board_text(){
-        board_text_ =new ArrayList<>();
-        String temp = "根据公告栏的游戏进程安排，通过点击列表中的玩家名称确定目标，“下一阶段”表示跳过当前环节。“发动能力”只有在相应的游戏阶段才能使用。\n点击确定开始游戏！";
-        board_text_.add(temp);
-        temp = "夜晚请闭眼";
-        board_text_.add(temp);
-        temp = "狼人请睁眼，指出你要刀的人，狼人请闭眼";
-        board_text_.add(temp);
-        temp = "守卫请睁眼，今晚你守卫哪个人。好的，守卫请闭眼";
-        board_text_.add(temp);
-        temp = "女巫请睁眼。（详情看弹窗）。好的，女巫请闭眼";
-        board_text_.add(temp);
-        temp ="预言家请睁眼，选择一位玩家查验身份，好人是向上，坏人是向下，他的身份是这个，预言家请闭眼。";
-        board_text_.add(temp);
-        temp = "白天,由上帝决定各种流程的进展。\n点击'更多'来发动角色的特殊能力、放逐等\n点击'下一阶段'，进入黑夜";
-        board_text_.add(temp);
-        temp = "放逐（点击玩家名称后'确定'则该玩家被放逐，若仅是误触，则点击下一阶段）";
-        board_text_.add(temp);
-        temp = "白狼王自爆（点击玩家名称后'确定'则该玩家被带走，若仅是误触，则点击下一阶段）";
-        board_text_.add(temp);
-        temp = "猎人带走（点击玩家名称后'确定'则该玩家被带走，若仅是误触，则点击下一阶段）";
-        board_text_.add(temp);
-    }
 
 
     public List<String> getVisual_player_data_list_()
@@ -401,7 +421,7 @@ class hunter extends civilians
         if (perish_together_condition(PlayerStateManager.game_stage_now_));
         {
             // TODO 看看UI能怎么和这个类结合再写
-            perish_together_skill(target_id);
+        //    perish_together_skill(target_id);
         }
     }
 }
