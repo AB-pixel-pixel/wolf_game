@@ -100,4 +100,9 @@ public class GameBoardFragment extends Fragment {
             update_text_content(list);
         });
     }
+
+
+
+
+
 }

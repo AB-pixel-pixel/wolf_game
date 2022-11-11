@@ -194,4 +194,5 @@ public class IdentitySettingActivity extends AppCompatActivity implements View.O
         identity_saved_param_editor_.commit();
     }
 
+
 }

@@ -5,10 +5,12 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +22,6 @@ public class GamePlayerListFragment extends Fragment {
 
 
     // 玩家的状态
-    private PlayerStateManager player_state_;
     private RecyclerView player_state_list_RV_;
     private PlayerListAdapter adapter_;
     private Context context_;
@@ -31,12 +32,6 @@ public class GamePlayerListFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState)
-    {
-        super.onViewCreated(view, savedInstanceState);
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -61,15 +56,28 @@ public class GamePlayerListFragment extends Fragment {
         player_state_list_RV_.setLayoutManager(gridLayoutManager);
 
 
-        adapter_.setRecyclerItemClickListener(new PlayerListAdapter.OnRecyclerItemClickListener() {
-            @Override
-            public void onRecyclerItemClick(int position) {
-                System.out.println(position);
-            }
-        });
+        adapter_.setRecyclerItemClickListener(position ->         player_state_manager_.getClick_process_player_button_().observe(getViewLifecycleOwner(), list -> {
+            list.set(0,position);
+            Log.i("List：",String.valueOf(list.get(0))+String.valueOf(list.get(1)));
+        })
+        );
 
 
         return base_view;
     }
+    //---------------------------------------------------------------------------------------------
+    //
+    //      处理点击列表事件
+    //
+    //---------------------------------------------------------------------------------------------
 
+    private PlayerStateManager player_state_manager_;
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        player_state_manager_ = new ViewModelProvider(requireActivity()).get(PlayerStateManager.class);
+
+    }
 }

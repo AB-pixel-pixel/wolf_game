@@ -4,6 +4,7 @@ package com.example.atry;
 
 import android.util.Log;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -24,16 +25,6 @@ public class PlayerStateManager extends ViewModel {
     public final static List<civilians> role_list_ = new ArrayList<>();
     private static List<Integer> night_states_;
     public static List<String> visual_player_data_list_;
-
-    // 记录游戏状态以及游戏阶段的列表
-    public static int game_stage_now_;
-
-    //游戏阶段，-1未开始游戏，0进入夜晚，1 狼人刀人，2 女巫使用能力，
-    // 3 守卫使用能力，4 预言家验身份, 5 遗言，6发言， 7放逐， 8上警
-    // 9 狼人自爆 10 猎人使用能力
-
-
-
 
 
     // 记录公告栏内容的文本,与game_stages_搭配使用
@@ -63,6 +54,11 @@ public class PlayerStateManager extends ViewModel {
         night_states_.add(-1);
         // 初始化当前游戏阶段
         game_stage_now_ = -1;
+
+        // 初始化点击事件
+        init_click_process_player_button_();
+
+
     }// 结束构造函数
 
 
@@ -71,6 +67,25 @@ public class PlayerStateManager extends ViewModel {
     public void start(){
         game_stage_now_ = -1;
     }
+
+    //---------------------------------------------------------------------------------------------
+    //
+    //      管理人员的确定事件
+    //
+    //---------------------------------------------------------------------------------------------
+
+    private final MutableLiveData<List<Integer>> click_process_player_button_= new MutableLiveData<List<Integer>>();;
+
+    public void init_click_process_player_button_(){
+        List<Integer> click_process_player_button_list = new ArrayList<>();
+        click_process_player_button_list.add(-1);
+        click_process_player_button_list.add(-1);
+        click_process_player_button_.setValue(click_process_player_button_list);
+        }
+    public LiveData<List<Integer>> getClick_process_player_button_(){
+        return click_process_player_button_;
+    }
+
 
 
     //---------------------------------------------------------------------------------------------
@@ -129,6 +144,8 @@ public class PlayerStateManager extends ViewModel {
     //      管理游戏阶段
     //
     //---------------------------------------------------------------------------------------------
+    // 记录游戏状态
+    public static int game_stage_now_;
 
     public void next_stage(){
         // 让流程在0到5的区间里流动
