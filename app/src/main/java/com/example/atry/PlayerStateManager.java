@@ -15,9 +15,6 @@ import java.util.Map;
 
 
 public class PlayerStateManager extends ViewModel {
-    // TEST
-    private final String TAG =  "player_msg";
-    private final boolean TEST = true;
 
     // 用于转换数据的Map
     public final static Map<Integer,String> int2identity_map = new HashMap<>();
@@ -62,7 +59,7 @@ public class PlayerStateManager extends ViewModel {
     //
     //---------------------------------------------------------------------------------------------
 
-    private final MutableLiveData<List<Integer>> click_process_player_button_= new MutableLiveData<List<Integer>>();;
+    private final MutableLiveData<List<Integer>> click_process_player_button_= new MutableLiveData<List<Integer>>();
 
     public void init_click_process_player_button_(){
         List<Integer> click_process_player_button_list = new ArrayList<>();
@@ -76,7 +73,7 @@ public class PlayerStateManager extends ViewModel {
 
     //---------------------------------------------------------------------------------------------
     //
-    //      管理玩家列表的碎片UI
+    //      管理玩家列表的碎片UI， gplf
     //
     //---------------------------------------------------------------------------------------------
 
@@ -85,7 +82,10 @@ public class PlayerStateManager extends ViewModel {
 
     private player_list_fragment player_list_fragment_;
 
-    static class player_list_fragment{
+    public player_list_fragment get_player_list_fragment(){return player_list_fragment_;}
+    public void update_player_list_fragment(){player_list_fragment_=player_list_fragment_data_.getValue();}
+
+    class player_list_fragment{
 
         public player_list_fragment(List<Integer> identity_list, List<String> player_str_list){
             init_night_states();
@@ -94,8 +94,10 @@ public class PlayerStateManager extends ViewModel {
         }
 
 
+
+
         // 晚上的情况
-        private static List<Integer> night_states_;
+        private List<Integer> night_states_;
 
         private void init_night_states() {
             night_states_= new ArrayList<>();
@@ -105,9 +107,21 @@ public class PlayerStateManager extends ViewModel {
             night_states_.add(-1);
         }
 
+        public List<Integer> getNight_states_() {
+            return night_states_;
+        }
+
+        public void setNight_states_(List<Integer> night_states_) {
+            this.night_states_ = night_states_;
+        }
+
+
+        public void setVisual_player_data_list_(List<String> visual_player_data_list_) {
+            this.visual_player_data_list_ = visual_player_data_list_;
+        }
 
         // 玩家数据的文本
-        public static List<String> visual_player_data_list_;
+        public List<String> visual_player_data_list_;
 
         private void init_visual_player_data_list(List<String> player_str_list){
             // 用于可视化玩家信息的列表
@@ -119,12 +133,18 @@ public class PlayerStateManager extends ViewModel {
             }
         }
 
+        public List<String> getVisual_player_data_list_()
+        {
+            return visual_player_data_list_;
+        }
+
+        // TODO: player_list_fragment.role_list_ 的写法是有错误的
 
         // 设置角色身份
-        public final static List<civilians> role_list_ = new ArrayList<>();
+        public List<civilians> role_list_;
 
         private void init_role_list(List<Integer> identity_list,List<String> player_str_list){
-
+            role_list_ = new ArrayList<>();
             for (int i =0;i<player_str_list.size();i++)
             {
                 int identity_num = identity_list.get(i);
@@ -230,7 +250,7 @@ public class PlayerStateManager extends ViewModel {
             return this;
         }
 
-        private void init_game_stage_now_(){game_stage_now_ = -1;};
+        private void init_game_stage_now_(){game_stage_now_ = -1;}
 
         public void back_to_daytime_stage(){
             game_stage_now_ = 5;
@@ -273,7 +293,7 @@ public class PlayerStateManager extends ViewModel {
             }
         }
 
-        public List<Integer> get_date_(){return date_;};
+        public List<Integer> get_date_(){return date_;}
     }
 
 
@@ -307,7 +327,7 @@ public class PlayerStateManager extends ViewModel {
 
     public List<String> getVisual_player_data_list_()
     {
-        return player_list_fragment.visual_player_data_list_;
+        return player_list_fragment_.getVisual_player_data_list_();
     }
 }
 
@@ -441,8 +461,6 @@ class white_wolf_king extends wolf implements perish_together_skill {
 
     @Override
     public void perish_together(int target_id) {
-        PlayerStateManager.role_list_.get(target_id).out(3);
-        PlayerStateManager.role_list_.get(target_id).out(3);
     }
 
     // 检查调用的玩家是不是死了
@@ -465,9 +483,8 @@ class hunter extends civilians
     }
 
     public void perish_together(int target_id) {
-        PlayerStateManager.role_list_.get(target_id).out(0);
-    }
 
+    }
 
     public boolean perish_together_condition(int game_states) {
         return this.state_==1;
@@ -506,7 +523,7 @@ class guards extends civilians implements guards_ability{
 
     @Override
     public boolean defend_condition(int target_id) {
-        return (last_guard_id_ !=target_id)&&(PlayerStateManager.role_list_.get(target_id).state_ == 0);
+        return true;
     }
 
     @Override

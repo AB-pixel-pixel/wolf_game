@@ -43,12 +43,12 @@ public class GamePlayerListFragment extends Fragment {
     {
         // TODO 美化一些变量的调用
 
-        // 读取存储的数据
         View base_view = inflater.inflate(R.layout.fragment_player_state_list,container,false);
-        context_ = base_view.getContext();
 
-        //操作
-        List<String>  visual_player_data_list= PlayerStateManager.player_list_fragment.visual_player_data_list_ ;
+        // 读取存储的数据
+        player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
+        List<String>  visual_player_data_list = player_state_manager_.get_player_list_fragment().getVisual_player_data_list_();
+
 
         player_state_list_RV_ = base_view.findViewById(R.id.player_state_list_recycler_view);
 
@@ -60,7 +60,7 @@ public class GamePlayerListFragment extends Fragment {
         player_state_list_RV_.setAdapter(adapter_);
 
 
-        GridLayoutManager gridLayoutManager= new GridLayoutManager(context_,1);
+        GridLayoutManager gridLayoutManager= new GridLayoutManager(base_view.getContext(),1);
         player_state_list_RV_.setLayoutManager(gridLayoutManager);
 
 
