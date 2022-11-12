@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class PlayerStateManager extends ViewModel {
     // TEST
     private final String TAG =  "player_msg";
@@ -21,56 +22,43 @@ public class PlayerStateManager extends ViewModel {
     // 用于转换数据的Map
     public final static Map<Integer,String> int2identity_map = new HashMap<>();
     public final static Map<Integer,String> int2state_map = new HashMap<>();
-    // 存放各种数据的列表
-    public final static List<civilians> role_list_ = new ArrayList<>();
-    private static List<Integer> night_states_;
-    public static List<String> visual_player_data_list_;
 
+
+
+
+    @Override
+    protected void onCleared()
+    {
+        super.onCleared();
+        game_board_fragment_manager_ = null;
+    }
 
     // 记录公告栏内容的文本,与game_stages_搭配使用
     // 各种阶段的文字提示以及说明，比如：遗言环节，发言环节，放逐环节，上警环节
     // public static List<String> board_text_;
 
+
+
     public void init(List<Integer> identity_list, List<String> player_str_list){
         // 构造数据转换的map
         init_translation_map();
 
-        // 初始化角色
-        init_role_list(identity_list,player_str_list);
-
-        // 填充可视化数据并报告
-        init_visual_player_data_list(player_str_list);
-
-
-        // 初始化开局情况
-        // 初始化日期
-        init_data();
-
-        // 初始化晚上的情况
-        night_states_= new ArrayList<>();
-        night_states_.add(-1);
-        night_states_.add(-1);
-        night_states_.add(-1);
-        night_states_.add(-1);
-        // 初始化当前游戏阶段
-        game_stage_now_ = -1;
+        // GamePlayerListFragment ModelView
+        player_list_fragment_ = new player_list_fragment(identity_list,player_str_list);
+        player_list_fragment_data_.setValue(player_list_fragment_);
+        // 初始化与游戏公告栏交流数据的容器
+        init_game_board_fragment_manager();
 
         // 初始化点击事件
         init_click_process_player_button_();
-
-
     }// 结束构造函数
 
 
 
 
-    public void start(){
-        game_stage_now_ = -1;
-    }
-
     //---------------------------------------------------------------------------------------------
     //
-    //      管理人员的确定事件
+    //      管理按钮的点击事件
     //
     //---------------------------------------------------------------------------------------------
 
@@ -86,91 +74,213 @@ public class PlayerStateManager extends ViewModel {
         return click_process_player_button_;
     }
 
-
-
     //---------------------------------------------------------------------------------------------
     //
-    //      管理公告栏文本的内容
+    //      管理玩家列表的碎片UI
     //
     //---------------------------------------------------------------------------------------------
 
-    // **
-    // * 管理时间
-    // *
-    private List<Integer> date_; // 记录时间，首元素是天数，第二个元素是当天的时间（0:夜晚，1:白天）。
-    private void init_data(){
-        date_ = new ArrayList<>();
-        date_.add(1);
-        date_.add(0);
-    }
+    private MutableLiveData<player_list_fragment> player_list_fragment_data_ =
+            new MutableLiveData<player_list_fragment>();
 
-    private void update_date(){
-        if (game_stage_now_ ==0)
-        {
-            int data_now = date_.get(0)+1;
-            date_.set(0,data_now);
+    private player_list_fragment player_list_fragment_;
+
+    static class player_list_fragment{
+
+        public player_list_fragment(List<Integer> identity_list, List<String> player_str_list){
+            init_night_states();
+            init_role_list(identity_list,player_str_list);
+            init_visual_player_data_list(player_str_list);
         }
-        // 控制日期
-        if (game_stage_now_<5)
-        {
-            date_.set(1,0);
+
+
+        // 晚上的情况
+        private static List<Integer> night_states_;
+
+        private void init_night_states() {
+            night_states_= new ArrayList<>();
+            night_states_.add(-1);
+            night_states_.add(-1);
+            night_states_.add(-1);
+            night_states_.add(-1);
         }
-        else
-        {
-            date_.set(1,1);
+
+
+        // 玩家数据的文本
+        public static List<String> visual_player_data_list_;
+
+        private void init_visual_player_data_list(List<String> player_str_list){
+            // 用于可视化玩家信息的列表
+            visual_player_data_list_ = new ArrayList<>();
+            for (int i =0;i<player_str_list.size();i++)
+            {
+                String temp_data = role_list_.get(i).toVisualText();
+                visual_player_data_list_.add(temp_data);
+            }
         }
+
+
+        // 设置角色身份
+        public final static List<civilians> role_list_ = new ArrayList<>();
+
+        private void init_role_list(List<Integer> identity_list,List<String> player_str_list){
+
+            for (int i =0;i<player_str_list.size();i++)
+            {
+                int identity_num = identity_list.get(i);
+                String player_name = player_str_list.get(i);
+                switch (identity_num){
+                    case -2:
+                    {
+                        civilians temp = new white_wolf_king(i,player_name,identity_num,1);
+                        role_list_.add(temp);
+                        break;
+                    }
+                    case -1:
+                    {
+                        civilians temp = new wolf(i,player_name,identity_num, 1);
+                        role_list_.add(temp);
+                        break;
+                    }
+                    case 0:
+                    {
+                        civilians temp = new civilians(i,player_name,identity_num, 1);
+                        role_list_.add(temp);
+                        break;
+                    }
+                    case 1:
+                    {
+                        civilians temp = new guards(i,player_name,identity_num, 1);
+                        role_list_.add(temp);
+                        break;
+                    }
+                    case 2:
+                    {
+                        civilians temp = new hunter(i,player_name,identity_num, 1);
+                        role_list_.add(temp);
+                        break;
+                    }
+                    case 3:
+                    {
+                        // TODO,完善一下这个switch架构，现在懒得改
+                        civilians temp = new civilians(i,player_name,identity_num, 1);
+                        role_list_.add(temp);
+                        break;
+                    }
+                    case 4:
+                    {
+                        civilians temp = new witch(i,player_name, identity_num, 1);
+                        role_list_.add(temp);
+                        break;
+                    }
+                }
+            }
+        }
+
+
     }
 
-    // 数据库
 
-    private final MutableLiveData<List<Integer>> game_board_fragment_data_ = new MutableLiveData<>();
-    // private LiveData<List<Integer>> board_fragment_data_ =
-
-    public MutableLiveData<List<Integer>> get_game_board_fragment_data_(){
-        return game_board_fragment_data_;
-    }
-
-    // 前两位为日期，后一位是游戏阶段
-    private List<Integer> temp_update_game_board_fragment_data_ = new ArrayList<>();
-    private void update_game_board_fragment_data_(){
-        temp_update_game_board_fragment_data_.addAll(date_);
-        temp_update_game_board_fragment_data_.add(game_stage_now_);
-        game_board_fragment_data_.setValue(temp_update_game_board_fragment_data_);
-    }
 
 
     //---------------------------------------------------------------------------------------------
     //
-    //      管理游戏阶段
+    //      管理公告栏文本的数据
     //
     //---------------------------------------------------------------------------------------------
-    // 记录游戏状态
-    public static int game_stage_now_;
 
-    public void next_stage(){
-        // 让流程在0到5的区间里流动
-        game_stage_now_ = (game_stage_now_ + 1 )%6;
-        // 更新日期
-        update_date();
+    private MutableLiveData<game_board_fragment_manager> game_board_fragment_manager_ = new MutableLiveData<>();
+
+    private void init_game_board_fragment_manager(){
+        game_board_fragment_manager_.setValue(new game_board_fragment_manager());
     }
 
-    public void back_to_daytime_stage(){
-        game_stage_now_ = 5;
+    public MutableLiveData<game_board_fragment_manager> get_game_board_fragment_manager_(){
+        return game_board_fragment_manager_;
     }
 
-    public int getGame_stage_now_()
+    static class game_board_fragment_manager
     {
-        return game_stage_now_;
+
+        game_board_fragment_manager(){
+            init_game_stage_now_();
+            init_data();
+        }
+
+        game_board_fragment_manager(List<Integer> date, int game_stage)
+        {
+            game_stage_now_ = game_stage;
+            date_ = date;
+        }
+
+        public static game_board_fragment_manager get_instance_game_board_fragment_manager_(game_board_fragment_manager copy){
+            return new game_board_fragment_manager(copy.get_date_(),copy.game_stage_now_);
+        }
+
+        // **
+        // * 管理游戏阶段
+        // *
+        public int game_stage_now_;
+
+        public game_board_fragment_manager update_stage(){
+            // 让流程在0到5的区间里流动
+            game_stage_now_ = (game_stage_now_ + 1 )%6;
+            // 更新日期
+            update_date();
+            return this;
+        }
+
+        private void init_game_stage_now_(){game_stage_now_ = -1;};
+
+        public void back_to_daytime_stage(){
+            game_stage_now_ = 5;
+        }
+
+        public int getGame_stage_now_()
+        {
+            return game_stage_now_;
+        }
+
+        public void setGame_stage_now_(int stage)
+        {
+            game_stage_now_ = stage;
+        }
+
+        // **
+        // * 管理时间
+        // *
+        private List<Integer> date_; // 记录时间，首元素是天数，第二个元素是当天的时间（0:夜晚，1:白天）。
+        private void init_data(){
+            date_ = new ArrayList<>();
+            date_.add(0);
+            date_.add(0);
+        }
+
+        private void update_date(){
+            if (game_stage_now_ ==0)
+            {
+                int data_now = date_.get(0)+1;
+                date_.set(0,data_now);
+            }
+            // 控制日期
+            if (game_stage_now_<5)
+            {
+                date_.set(1,0);
+            }
+            else
+            {
+                date_.set(1,1);
+            }
+        }
+
+        public List<Integer> get_date_(){return date_;};
     }
 
-    public void setGame_stage_now_(int stage)
-    {
-        game_stage_now_ = stage;
-    }
+
 
     //---------------------------------------------------------------------------------------------
     //
-    //      初始化游戏参数的
+    //      初始化游戏参数
     //
     //---------------------------------------------------------------------------------------------
 
@@ -191,81 +301,13 @@ public class PlayerStateManager extends ViewModel {
 
     }
 
-    private void init_role_list(List<Integer> identity_list,List<String> player_str_list){
-        // 设置角色身份
-        for (int i =0;i<player_str_list.size();i++)
-        {
-            int identity_num = identity_list.get(i);
-            String player_name = player_str_list.get(i);
-            switch (identity_num){
-                case -2:
-                {
-                    civilians temp = new white_wolf_king(i,player_name,identity_num,1);
-                    role_list_.add(temp);
-                    break;
-                }
-                case -1:
-                {
-                    civilians temp = new wolf(i,player_name,identity_num, 1);
-                    role_list_.add(temp);
-                    break;
-                }
-                case 0:
-                {
-                    civilians temp = new civilians(i,player_name,identity_num, 1);
-                    role_list_.add(temp);
-                    break;
-                }
-                case 1:
-                {
-                    civilians temp = new guards(i,player_name,identity_num, 1);
-                    role_list_.add(temp);
-                    break;
-                }
-                case 2:
-                {
-                    civilians temp = new hunter(i,player_name,identity_num, 1);
-                    role_list_.add(temp);
-                    break;
-                }
-                case 3:
-                {
-                    // TODO,完善一下这个switch架构，现在懒得改
-                    civilians temp = new civilians(i,player_name,identity_num, 1);
-                    role_list_.add(temp);
-                    break;
-                }
-                case 4:
-                {
-                    civilians temp = new witch(i,player_name, identity_num, 1);
-                    role_list_.add(temp);
-                    break;
-                }
-            }
-        }
-    }
-
-    private void init_visual_player_data_list(List<String> player_str_list){
-        // 用于可视化玩家信息的列表
-        visual_player_data_list_ = new ArrayList<>();
-        for (int i =0;i<player_str_list.size();i++)
-        {
-            if (role_list_ == null)
-            {
-                Log.i(TAG,"role_list_ null");
-            }
-            String temp_data = role_list_.get(i).toVisualText();
-            visual_player_data_list_.add(temp_data);
-        }
-    }
-
 
 
 
 
     public List<String> getVisual_player_data_list_()
     {
-        return visual_player_data_list_;
+        return player_list_fragment.visual_player_data_list_;
     }
 }
 
@@ -435,7 +477,8 @@ class hunter extends civilians
     public void out(int mode)
     {
         this.state_ = mode;
-        if (perish_together_condition(PlayerStateManager.game_stage_now_));
+        // TODO finish game_state_condition
+        if (perish_together_condition(1));
         {
             // TODO 看看UI能怎么和这个类结合再写
         //    perish_together_skill(target_id);

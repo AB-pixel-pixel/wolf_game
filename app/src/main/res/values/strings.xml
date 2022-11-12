@@ -25,7 +25,7 @@
     <!-- 游戏页面 -->
     <!-- 最下面的按钮栏 -->
     <string name="no">取消</string>
-    <string name="candidate">候选玩家</string>
+    <string name="candidate">当前未选中玩家</string>
     <!-- 最上面的公告栏 -->
     <string name="game_notice_board">公告栏:点击确定开始游戏</string>
     <string name="time">第一天夜晚</string>

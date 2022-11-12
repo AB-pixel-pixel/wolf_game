@@ -42,9 +42,6 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         init();
-        plyaer_state_list_fragment_ = new GamePlayerListFragment(); // 实例化Fragment
-        getSupportFragmentManager().beginTransaction().add(R.id.player_state_list_fragment, plyaer_state_list_fragment_,"").commitAllowingStateLoss(); // 将fragment添加到activity
-
     }
 
     private void init()
@@ -90,7 +87,6 @@ public class GameActivity extends AppCompatActivity {
                 Log.i("检查player", i);
             }
         }
-
 
         player_state_manager_ = new ViewModelProvider(this).get(PlayerStateManager.class);
         // 使用整理后的数据初始化玩家信息（序号，身份等）

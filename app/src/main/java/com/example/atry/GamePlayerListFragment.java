@@ -14,6 +14,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -25,6 +28,7 @@ public class GamePlayerListFragment extends Fragment {
     private RecyclerView player_state_list_RV_;
     private PlayerListAdapter adapter_;
     private Context context_;
+    private TextView choice_player_;
     //
 
     @Override
@@ -44,9 +48,13 @@ public class GamePlayerListFragment extends Fragment {
         context_ = base_view.getContext();
 
         //操作
-        List<String>  visual_player_data_list= PlayerStateManager.visual_player_data_list_ ;
+        List<String>  visual_player_data_list= PlayerStateManager.player_list_fragment.visual_player_data_list_ ;
 
         player_state_list_RV_ = base_view.findViewById(R.id.player_state_list_recycler_view);
+
+        // 注册TextView
+        choice_player_ = (TextView) base_view.findViewById(R.id.choice_player);
+
         // 初始化 Adapter
         adapter_ = new PlayerListAdapter(visual_player_data_list,this.getContext());
         player_state_list_RV_.setAdapter(adapter_);
@@ -58,6 +66,8 @@ public class GamePlayerListFragment extends Fragment {
 
         adapter_.setRecyclerItemClickListener(position ->         player_state_manager_.getClick_process_player_button_().observe(getViewLifecycleOwner(), list -> {
             list.set(0,position);
+            int visual_position= position + 1;
+            choice_player_.setText("当前选中"+visual_position+"号位");
             Log.i("List：",String.valueOf(list.get(0))+String.valueOf(list.get(1)));
         })
         );

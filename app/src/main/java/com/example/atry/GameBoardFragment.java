@@ -3,7 +3,10 @@ package com.example.atry;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
@@ -18,31 +21,46 @@ import java.util.Map;
 
 public class GameBoardFragment extends Fragment {
 
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        init_game_state_2_string_text_();
     }
-
 
     private View view_;
     private TextView time_topic_;
     private TextView game_notice_board_;
 
-
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         if (view_ == null)
         {
             view_ = inflater.inflate(R.layout.fragment_game_notice_board, container,false);
         }
 
+
         game_notice_board_ = view_.findViewById(R.id.game_notice_board);
         time_topic_ = view_.findViewById(R.id.time_topic);
+
+        // 将数据库的东西和UI绑定
+
+        player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
+        final MutableLiveData<PlayerStateManager.game_board_fragment_manager>  player_state_manager__game_board_fragment_manager_ = player_state_manager_.get_game_board_fragment_manager_();
+
+        // Create the observer which updates the UI.
+        final Observer<PlayerStateManager.game_board_fragment_manager> board_fragment_observer = new Observer<PlayerStateManager.game_board_fragment_manager>() {
+            @Override
+            public void onChanged(PlayerStateManager.game_board_fragment_manager game_board_fragment_manager) {
+                int temp = game_board_fragment_manager.getGame_stage_now_();
+                game_notice_board_.setText(game_state_2_string_text_.get(temp));
+                time_topic_.setText(date_2_time_topic(game_board_fragment_manager.get_date_()));
+            }
+        };
+
+        // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
+        player_state_manager_.get_game_board_fragment_manager_().observe(getActivity(), board_fragment_observer);
+
         return view_;
     }
 
@@ -72,7 +90,7 @@ public class GameBoardFragment extends Fragment {
     }
 
 
-    public void update_text_content(List<Integer> game_board_fragment_data){
+    public String date_2_time_topic(List<Integer> game_board_fragment_data){
         String temp = "第" + game_board_fragment_data.get(0) + "天";
         if (game_board_fragment_data.get(1)==0)
         {
@@ -81,8 +99,7 @@ public class GameBoardFragment extends Fragment {
         else {
             temp += "白天";
         }
-        time_topic_.setText(temp);
-        game_notice_board_.setText(game_state_2_string_text_.get(game_board_fragment_data.get(3)));
+        return(temp);
     }
 
     //---------------------------------------------------------------------------------------------
@@ -90,19 +107,11 @@ public class GameBoardFragment extends Fragment {
     //      LiveData的观察者
     //
     //---------------------------------------------------------------------------------------------
-    private PlayerStateManager text_view_model_;
+    private PlayerStateManager player_state_manager_;
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        text_view_model_ = new ViewModelProvider(requireActivity()).get(PlayerStateManager.class);
-        text_view_model_.get_game_board_fragment_data_().observe(getViewLifecycleOwner(), list -> {
-            update_text_content(list);
-        });
     }
-
-
-
-
 
 }

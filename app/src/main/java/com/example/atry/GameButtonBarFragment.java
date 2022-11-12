@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,7 +34,6 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
 
     private Button confirm_button_;
     private Button cancel_button_;
-    private TextView candidate_;
     private View root_;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +46,7 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
         cancel_button_ = (Button) root_.findViewById(R.id.game_cancel_button);
         cancel_button_.setOnClickListener(this);
 
-        candidate_ = (TextView) root_.findViewById(R.id.choice_player);
+        player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
 
         return root_;
     }
@@ -63,8 +63,6 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        player_state_manager_ = new ViewModelProvider(requireActivity()).get(PlayerStateManager.class);
-
     }
 
 
@@ -74,18 +72,11 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
         {
             case R.id.game_confirm_button:
             {
-                player_state_manager_.getClick_process_player_button_().observe(getViewLifecycleOwner(), list -> {
-                    int target_id =list.get(0);
-                    String temp = "当前选中玩家"+ String.valueOf(target_id+1);
-                    candidate_.setText(temp);
-                });
-                break;
+                PlayerStateManager.game_board_fragment_manager temp = player_state_manager_.get_game_board_fragment_manager_().getValue().update_stage();
+                player_state_manager_.get_game_board_fragment_manager_().setValue(PlayerStateManager.game_board_fragment_manager.get_instance_game_board_fragment_manager_(temp));
             }
             case R.id.game_cancel_button:
             {
-                // TODO 接受UI和manager的信息
-                String temp = "当前未选中玩家";
-                candidate_.setText(temp);
                 break;
             }
         }
