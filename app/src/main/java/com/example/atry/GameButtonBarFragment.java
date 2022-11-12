@@ -6,12 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.TextView;
 
 
 public class GameButtonBarFragment extends Fragment implements View.OnClickListener{
@@ -45,7 +43,6 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
         confirm_button_.setOnClickListener(this);
         cancel_button_ = (Button) root_.findViewById(R.id.game_cancel_button);
         cancel_button_.setOnClickListener(this);
-
         player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
 
         return root_;
@@ -72,11 +69,12 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
         {
             case R.id.game_confirm_button:
             {
-                PlayerStateManager.game_board_fragment_manager temp = player_state_manager_.get_game_board_fragment_manager_().getValue().update_stage();
-                player_state_manager_.get_game_board_fragment_manager_().setValue(PlayerStateManager.game_board_fragment_manager.get_instance_game_board_fragment_manager_(temp));
+                int target_id = player_state_manager_.getPicked_player_().getValue();
+                player_state_manager_.process_confirm_click_input(target_id);
             }
             case R.id.game_cancel_button:
             {
+                player_state_manager_.getPicked_player_().setValue(-1);
                 break;
             }
         }

@@ -34,14 +34,30 @@
     <string name="text_night">夜晚请闭眼</string>
     <string name="text_wolf">狼人请睁眼，指出你要刀的人，狼人请闭眼</string>
     <string name="text_guard">守卫请睁眼，今晚你守卫哪个人。好的，守卫请闭眼</string>
-    <string name="text_witch">女巫请睁眼。（详情看弹窗）。好的，女巫请闭眼</string>
+    <string name="text_witch">女巫，你手中有一瓶毒药，要毒谁？好的，女巫请闭眼</string>
     <string name="text_prophet">预言家请睁眼，选择一位玩家查验身份，好人是向上，坏人是向下，他的身份是这个，预言家请闭眼。</string>
-    <string name="text_daytime">白天,由上帝决定各种流程的进展。点击\'更多\'来发动角色的特殊能力、放逐等。点击\'下一阶段\'，进入黑夜</string>
-    <string name="text_exile">放逐（点击玩家名称后\'确定\'则该玩家被放逐，若仅是误触，则点击下一阶段）</string>
+    <string name="text_daytime">白天。点击玩家名称并\'确定\'，则该玩家淘汰出局。点击\'取消\'，则进入黑夜</string>
+
+
+    <!--
     <string name="text_white_wolf">白狼王自爆（点击玩家名称后\'确定\'则该玩家被带走，若仅是误触，则点击下一阶段）</string>
     <string name="text_hunter">猎人带走（点击玩家名称后\'确定\'则该玩家被带走，若仅是误触，则点击下一阶段）</string>
+    <string name="text_exile">放逐（点击玩家名称后\'确定\'则该玩家被放逐，若仅是误触，则点击下一阶段）</string>
+    -->
 
+    <!-- 给玩家的通知 -->
+    <string name="no_picked_player">未选中玩家</string>
+    <string name="invalid_picking_player">玩家选中无效</string>
+    <string name="game_on">游戏开始</string>
+    <string name="wolf_lose">狼人输了</string>
+    <string name="no_cure">女巫没解药了</string>
+    <string name="no_poison">女巫没解药了</string>
+    <string name="exit">淘汰成功</string>
+    <string name="good_win">好人阵营胜利</string>
+    <string name="bad_win">狼人阵营胜利</string>
     <!-- -->
+
+
 
 </resources>
 

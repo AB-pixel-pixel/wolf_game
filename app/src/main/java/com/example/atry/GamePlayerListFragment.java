@@ -5,18 +5,17 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -28,7 +27,7 @@ public class GamePlayerListFragment extends Fragment {
     private RecyclerView player_state_list_RV_;
     private PlayerListAdapter adapter_;
     private Context context_;
-    private TextView choice_player_;
+    private TextView picked_player_text_view_;
     //
 
     @Override
@@ -36,6 +35,7 @@ public class GamePlayerListFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
+    private MutableLiveData<Integer> player_pick_manager_;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,14 +46,14 @@ public class GamePlayerListFragment extends Fragment {
         View base_view = inflater.inflate(R.layout.fragment_player_state_list,container,false);
 
         // 读取存储的数据
-        player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
-        List<String>  visual_player_data_list = player_state_manager_.get_player_list_fragment().getVisual_player_data_list_();
+        player_state_manager_vm_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
+        List<String>  visual_player_data_list = player_state_manager_vm_.get_player_list_fragment().getVisual_player_data_list_();
 
 
         player_state_list_RV_ = base_view.findViewById(R.id.player_state_list_recycler_view);
 
         // 注册TextView
-        choice_player_ = (TextView) base_view.findViewById(R.id.choice_player);
+        picked_player_text_view_ = (TextView) base_view.findViewById(R.id.choice_player);
 
         // 初始化 Adapter
         adapter_ = new PlayerListAdapter(visual_player_data_list,this.getContext());
@@ -63,15 +63,28 @@ public class GamePlayerListFragment extends Fragment {
         GridLayoutManager gridLayoutManager= new GridLayoutManager(base_view.getContext(),1);
         player_state_list_RV_.setLayoutManager(gridLayoutManager);
 
-
-        adapter_.setRecyclerItemClickListener(position ->         player_state_manager_.getClick_process_player_button_().observe(getViewLifecycleOwner(), list -> {
-            list.set(0,position);
-            int visual_position= position + 1;
-            choice_player_.setText("当前选中"+visual_position+"号位");
-            Log.i("List：",String.valueOf(list.get(0))+String.valueOf(list.get(1)));
-        })
+        player_pick_manager_ = player_state_manager_vm_.getPicked_player_();
+        adapter_.setRecyclerItemClickListener(position ->{
+                player_pick_manager_.setValue(position);
+                }
         );
 
+        final Observer<Integer> picked_player_observer = new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                if (integer==-1)
+                {
+                    picked_player_text_view_.setText(R.string.candidate);
+                }
+                else
+                {
+                    integer++;
+                    picked_player_text_view_.setText("当前选中"+integer+"号位玩家");
+                }
+            }
+        };
+
+        player_pick_manager_.observe(getActivity(),picked_player_observer);
 
         return base_view;
     }
@@ -81,13 +94,13 @@ public class GamePlayerListFragment extends Fragment {
     //
     //---------------------------------------------------------------------------------------------
 
-    private PlayerStateManager player_state_manager_;
+    private PlayerStateManager player_state_manager_vm_;
 
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        player_state_manager_ = new ViewModelProvider(requireActivity()).get(PlayerStateManager.class);
+        player_state_manager_vm_ = new ViewModelProvider(requireActivity()).get(PlayerStateManager.class);
 
     }
 }

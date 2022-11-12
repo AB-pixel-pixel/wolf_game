@@ -1,11 +1,14 @@
 package com.example.atry;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -88,9 +91,27 @@ public class GameActivity extends AppCompatActivity {
             }
         }
 
+        // 初始化ModelView
         player_state_manager_ = new ViewModelProvider(this).get(PlayerStateManager.class);
         // 使用整理后的数据初始化玩家信息（序号，身份等）
         player_state_manager_.init(identity_int_list_,player_str_list_);
+
+
+
+        // 监听通知
+        final Observer<Integer> message_to_user_observer = new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer s) {
+                Snackbar.make(findViewById(R.id.player_state_list_fragment), s,
+                        Snackbar.LENGTH_SHORT)
+                        .show();
+            }
+        };
+
+        player_state_manager_.get_message_data().observe(this,message_to_user_observer);
+
+
+
 
     }
 

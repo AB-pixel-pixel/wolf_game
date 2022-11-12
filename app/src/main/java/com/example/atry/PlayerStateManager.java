@@ -2,8 +2,6 @@ package com.example.atry;
 
 
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -21,13 +19,11 @@ public class PlayerStateManager extends ViewModel {
     public final static Map<Integer,String> int2state_map = new HashMap<>();
 
 
-
-
     @Override
     protected void onCleared()
     {
         super.onCleared();
-        game_board_fragment_manager_ = null;
+        game_board_fragment_manager_data_ = null;
     }
 
     // 记录公告栏内容的文本,与game_stages_搭配使用
@@ -39,7 +35,7 @@ public class PlayerStateManager extends ViewModel {
     public void init(List<Integer> identity_list, List<String> player_str_list){
         // 构造数据转换的map
         init_translation_map();
-
+        init_night_states();
         // GamePlayerListFragment ModelView
         player_list_fragment_ = new player_list_fragment(identity_list,player_str_list);
         player_list_fragment_data_.setValue(player_list_fragment_);
@@ -48,36 +44,23 @@ public class PlayerStateManager extends ViewModel {
 
         // 初始化点击事件
         init_click_process_player_button_();
+
+        game_board_fragment_manager_ = new game_board_fragment_manager();
+
     }// 结束构造函数
 
 
 
 
-    //---------------------------------------------------------------------------------------------
-    //
-    //      管理按钮的点击事件
-    //
-    //---------------------------------------------------------------------------------------------
 
-    private final MutableLiveData<List<Integer>> click_process_player_button_= new MutableLiveData<List<Integer>>();
-
-    public void init_click_process_player_button_(){
-        List<Integer> click_process_player_button_list = new ArrayList<>();
-        click_process_player_button_list.add(-1);
-        click_process_player_button_list.add(-1);
-        click_process_player_button_.setValue(click_process_player_button_list);
-        }
-    public LiveData<List<Integer>> getClick_process_player_button_(){
-        return click_process_player_button_;
-    }
 
     //---------------------------------------------------------------------------------------------
     //
-    //      管理玩家列表的碎片UI， gplf
+    //      管理玩家列表的碎片UI
     //
     //---------------------------------------------------------------------------------------------
 
-    private MutableLiveData<player_list_fragment> player_list_fragment_data_ =
+    private final MutableLiveData<player_list_fragment> player_list_fragment_data_ =
             new MutableLiveData<player_list_fragment>();
 
     private player_list_fragment player_list_fragment_;
@@ -88,32 +71,11 @@ public class PlayerStateManager extends ViewModel {
     class player_list_fragment{
 
         public player_list_fragment(List<Integer> identity_list, List<String> player_str_list){
-            init_night_states();
             init_role_list(identity_list,player_str_list);
             init_visual_player_data_list(player_str_list);
         }
 
 
-
-
-        // 晚上的情况
-        private List<Integer> night_states_;
-
-        private void init_night_states() {
-            night_states_= new ArrayList<>();
-            night_states_.add(-1);
-            night_states_.add(-1);
-            night_states_.add(-1);
-            night_states_.add(-1);
-        }
-
-        public List<Integer> getNight_states_() {
-            return night_states_;
-        }
-
-        public void setNight_states_(List<Integer> night_states_) {
-            this.night_states_ = night_states_;
-        }
 
 
         public void setVisual_player_data_list_(List<String> visual_player_data_list_) {
@@ -141,7 +103,7 @@ public class PlayerStateManager extends ViewModel {
         // TODO: player_list_fragment.role_list_ 的写法是有错误的
 
         // 设置角色身份
-        public List<civilians> role_list_;
+        public List<role> role_list_;
 
         private void init_role_list(List<Integer> identity_list,List<String> player_str_list){
             role_list_ = new ArrayList<>();
@@ -151,56 +113,207 @@ public class PlayerStateManager extends ViewModel {
                 String player_name = player_str_list.get(i);
                 switch (identity_num){
                     case -2:
-                    {
-                        civilians temp = new white_wolf_king(i,player_name,identity_num,1);
+                    case -1: {
+                        role temp = new wolf(i,player_name,identity_num);
                         role_list_.add(temp);
                         break;
                     }
-                    case -1:
-                    {
-                        civilians temp = new wolf(i,player_name,identity_num, 1);
+                    case 0:{
+                        role temp = new role(i,player_name,identity_num);
                         role_list_.add(temp);
                         break;
                     }
-                    case 0:
-                    {
-                        civilians temp = new civilians(i,player_name,identity_num, 1);
+                    case 3: {
+                        role temp = new prophet(i,player_name,identity_num);
                         role_list_.add(temp);
                         break;
                     }
                     case 1:
                     {
-                        civilians temp = new guards(i,player_name,identity_num, 1);
+                        role temp = new guards(i,player_name,identity_num);
                         role_list_.add(temp);
                         break;
                     }
                     case 2:
                     {
-                        civilians temp = new hunter(i,player_name,identity_num, 1);
-                        role_list_.add(temp);
-                        break;
-                    }
-                    case 3:
-                    {
-                        // TODO,完善一下这个switch架构，现在懒得改
-                        civilians temp = new civilians(i,player_name,identity_num, 1);
+                        role temp = new hunter(i,player_name,identity_num);
                         role_list_.add(temp);
                         break;
                     }
                     case 4:
                     {
-                        civilians temp = new witch(i,player_name, identity_num, 1);
+                        role temp = new witch(i,player_name, identity_num);
                         role_list_.add(temp);
                         break;
                     }
                 }
             }
         }
-
-
     }
 
+    //---------------------------------------------------------------------------------------------
+    //
+    //      管理玩家列表的点击
+    //
+    //---------------------------------------------------------------------------------------------
 
+    private final MutableLiveData<Integer> picked_player_ = new MutableLiveData<Integer>();
+
+    public void init_click_process_player_button_(){
+        picked_player_.setValue(-1);
+    }
+    public MutableLiveData<Integer> getPicked_player_(){
+        return picked_player_;
+    }
+
+    public void game_next_stage(){
+        game_board_fragment_manager_ = get_game_board_fragment_manager_().getValue().update_stage_counter();
+        get_game_board_fragment_manager_().setValue(game_board_fragment_manager_);
+    }
+
+    public void game_next_stage(int stage){
+        game_board_fragment_manager_ = get_game_board_fragment_manager_().getValue().update_stage_counter(stage);
+        get_game_board_fragment_manager_().setValue(game_board_fragment_manager_);
+    }
+
+    public void process_confirm_click_input(int target_id){
+        switch (game_board_fragment_manager_.game_stage_now_){
+            case -1:{
+                if (target_id!= -1)
+                {
+                    game_next_stage();
+                    message_to_user(R.string.game_on);
+                }
+                else
+                {
+                    game_next_stage();
+                }
+                break;
+            }
+            case 0:{
+                if (target_id!= -1)
+                {
+                    game_next_stage();
+                    message_to_user(R.string.invalid_picking_player);
+                }
+                else
+                {
+                    game_next_stage();
+                }
+                break;
+            }
+            case 1:{
+                if(wolf.wolf_all_dead())
+                {
+                    message_to_user(R.string.wolf_lose);
+                }else if (target_id!= -1)
+                {
+                    wolf.Kill(target_id, night_states_);
+                    game_next_stage();
+                }
+                else
+                {
+                    message_to_user(R.string.invalid_picking_player);
+                }
+                break;
+            }
+            case 2:{
+                if (!guards.hunter_all_dead()){
+
+                }
+                else{
+                    game_next_stage();
+                }
+                break;
+            }
+            case 3:{
+                // TODO 表示几号位玩家被刀了
+                if (witch.hasCure())
+                {
+                    if (target_id!= -1) {
+                        witch.cure(target_id,night_states_);
+                        game_next_stage(5);
+                    }
+                }
+                else{
+                    message_to_user(R.string.no_cure);
+                    game_next_stage();
+                }
+                break;
+            }
+            case 4:{
+                if(witch.hasPoison())
+                {
+                    if (target_id != -1)
+                    {
+                        witch.poison(target_id,night_states_);
+                        game_next_stage();
+                    }
+                }
+                else{
+                    if (target_id != -1)
+                    {
+                        message_to_user(R.string.no_poison);
+                    }
+                    else{
+                        game_next_stage();
+                    }
+                }
+                break;
+            }
+            case 5:{
+                game_next_stage();
+                break;
+            }
+            case 6:{
+                if (target_id != -1)
+                {
+                    update_player_list_fragment();
+                    player_list_fragment_.role_list_.get(target_id).out();
+                    message_to_user(R.string.exit);
+                }
+                else
+                {
+                    game_next_stage();
+                }
+                // 判断胜负
+                if(wolf.wolf_all_dead())
+                {
+                    game_next_stage(7);
+                } else if(prophet.prophet_all_dead()&&hunter.hunter_all_dead()&&witch.witch_all_dead()){
+                    game_next_stage(8);
+                } else if(civilian.civilian_all_dead()){
+                    game_next_stage(8);
+                }
+                break;
+            }
+            case 7:{
+                message_to_user(R.string.good_win);
+            }
+            case 8:{
+                message_to_user(R.string.bad_win);
+            }
+        }
+    }
+
+    // 夜间事件
+    private List<Integer> night_states_;
+
+    private void init_night_states() {
+        night_states_= new ArrayList<>();
+        night_states_.add(-1);
+        night_states_.add(-1);
+        night_states_.add(-1);
+        night_states_.add(-1);
+    }
+
+    public List<Integer> getNight_states_() {
+        return night_states_;
+    }
+
+    public void setNight_states_(List<Integer> night_states_) {
+        this.night_states_ = night_states_;
+    }
 
 
     //---------------------------------------------------------------------------------------------
@@ -209,17 +322,18 @@ public class PlayerStateManager extends ViewModel {
     //
     //---------------------------------------------------------------------------------------------
 
-    private MutableLiveData<game_board_fragment_manager> game_board_fragment_manager_ = new MutableLiveData<>();
+    private MutableLiveData<game_board_fragment_manager> game_board_fragment_manager_data_ = new MutableLiveData<>();
 
     private void init_game_board_fragment_manager(){
-        game_board_fragment_manager_.setValue(new game_board_fragment_manager());
+        game_board_fragment_manager_data_.setValue(new game_board_fragment_manager());
     }
 
     public MutableLiveData<game_board_fragment_manager> get_game_board_fragment_manager_(){
-        return game_board_fragment_manager_;
+        return game_board_fragment_manager_data_;
     }
+    private game_board_fragment_manager game_board_fragment_manager_;
 
-    static class game_board_fragment_manager
+    class game_board_fragment_manager
     {
 
         game_board_fragment_manager(){
@@ -233,7 +347,7 @@ public class PlayerStateManager extends ViewModel {
             date_ = date;
         }
 
-        public static game_board_fragment_manager get_instance_game_board_fragment_manager_(game_board_fragment_manager copy){
+        public  game_board_fragment_manager get_instance_game_board_fragment_manager_(game_board_fragment_manager copy){
             return new game_board_fragment_manager(copy.get_date_(),copy.game_stage_now_);
         }
 
@@ -241,29 +355,31 @@ public class PlayerStateManager extends ViewModel {
         // * 管理游戏阶段
         // *
         public int game_stage_now_;
-
-        public game_board_fragment_manager update_stage(){
+        public final int regular_round_num_ = 7;
+        public game_board_fragment_manager update_stage_counter(){
             // 让流程在0到5的区间里流动
-            game_stage_now_ = (game_stage_now_ + 1 )%6;
+            game_stage_now_ = (game_stage_now_ + 1 )%regular_round_num_;
             // 更新日期
+            update_date();
+            return this;
+        }
+
+        public game_board_fragment_manager update_stage_counter(int stage){
+            setGame_stage_now_(stage);
             update_date();
             return this;
         }
 
         private void init_game_stage_now_(){game_stage_now_ = -1;}
 
-        public void back_to_daytime_stage(){
-            game_stage_now_ = 5;
-        }
-
-        public int getGame_stage_now_()
+        public int get_game_stage_now()
         {
             return game_stage_now_;
         }
 
         public void setGame_stage_now_(int stage)
         {
-            game_stage_now_ = stage;
+            game_stage_now_ = stage%regular_round_num_;
         }
 
         // **
@@ -295,7 +411,20 @@ public class PlayerStateManager extends ViewModel {
 
         public List<Integer> get_date_(){return date_;}
     }
+    //---------------------------------------------------------------------------------------------
+    //
+    //      管理游戏通知
+    //
+    //---------------------------------------------------------------------------------------------
+    MutableLiveData<Integer> message_data_ = new MutableLiveData<Integer>();
 
+    public  LiveData<Integer> get_message_data(){
+        return message_data_;
+    }
+
+    public void message_to_user(int message) {
+        message_data_.setValue(message);
+    }
 
 
     //---------------------------------------------------------------------------------------------
@@ -336,7 +465,7 @@ public class PlayerStateManager extends ViewModel {
     //      定义游戏角色
     //
     //---------------------------------------------------------------------------------------------
-class civilians{
+class role {
     // 玩家的序号
     protected int id_;
     // 玩家的名字
@@ -344,21 +473,22 @@ class civilians{
 
     // 以数字代指身份
     protected int identity_;
-    // 存储同索引的玩家角色的生命状态，0 为普通出局， 1为活着， 2为特有能力杀害（毒杀或者白狼王自爆带走）
+    // 存储同索引的玩家角色的生命状态，0 为普通出局， 1为活着
     protected int state_;
 
-    public civilians(int id,String name,int identity,int state)
+    public role(int id, String name, int identity)
     {
         // 玩家从1号开始
         id_ = id+1;
         name_ = name;
         identity_ = identity;
-        state_ = state;
+        state_ = 1;
+
     }
 
     // 定义出局的模式
-    public void out(int mode){
-        state_ = mode;
+    public void out(){
+        state_ = 0;
     }
 
     // 返回可视化的文本数据
@@ -367,6 +497,23 @@ class civilians{
         String visual_identity = PlayerStateManager.int2identity_map.get(identity_);
         String visual_state = PlayerStateManager.int2state_map.get(state_);
         return id_ + "号位   "+name_+"   "+visual_identity+"   "+visual_state;
+    }
+}
+
+class civilian extends role{
+    private static int civilians_number_ = 0;
+
+    public civilian(int id, String name, int identity) {
+        super(id, name, identity);
+        civilians_number_++;
+    }
+
+    public void out(){
+        civilians_number_--;
+    }
+
+    public static boolean civilian_all_dead(){
+        return (civilians_number_<1);
     }
 }
 
@@ -379,18 +526,26 @@ class civilians{
 //
 //---------------------------------------------------------------------------------------------
 
-interface wolf_ability{
-    public void Kill(int target_id,int[] night_states);
-}
-
-class wolf extends civilians implements wolf_ability{
-    wolf(int id,String name,int identity,int state){
-        super(id,name,identity,state);
+class wolf extends role {
+    private static int wolf_number_ = 0;
+    wolf(int id,String name,int identity){
+        super(id,name,identity);
+        wolf_number_++;
     }
-    @Override
-    public void Kill(int target_id, int[] night_states)
+
+    public static void Kill(int target_id, List<Integer> night_states)
     {
-        night_states[0] = target_id;
+        night_states.set(0,target_id);
+    }
+
+
+    public void out(){
+        state_ = 0;
+        wolf_number_--;
+    }
+
+    public static boolean wolf_all_dead(){
+        return (wolf_number_<1);
     }
 }
 
@@ -399,46 +554,69 @@ class wolf extends civilians implements wolf_ability{
 //      女巫
 //
 //---------------------------------------------------------------------------------------------
-
-interface witch_ability{
-    public boolean hasPoison();
-    public void poison(int target_id, int[] night_states);
-    public boolean hasCure();
-    public void cure(int target_id,int[] night_states);
-}
-
-class witch extends  civilians implements witch_ability{
-    private int poison_number_;
-    private int cure_number_;
-    witch(int id,String name,int identity,int state)
+class witch extends role {
+    private static int poison_number_;
+    private static int cure_number_;
+    private static int witch_num_ = 0;
+    witch(int id,String name,int identity)
     {
-        super(id,name,identity, state);
+        super(id,name,identity);
         poison_number_  = 1;
         cure_number_ = 1;
+        witch_num_++;
     }
 
-    @Override
-    public boolean hasPoison() {
-        return poison_number_ > 0;
+
+    public static boolean hasPoison() {
+        return (poison_number_ > 0);
     }
 
-    @Override
-    public void poison(int target_id, int[] night_states) {
-        night_states[2] = target_id;
+
+    public static void poison(int target_id, List<Integer> night_states) {
+        night_states.set(2,target_id);
         poison_number_--;
     }
 
-    @Override
-    public boolean hasCure() {
-        return cure_number_>0;
+
+    public static boolean hasCure() {
+        return (cure_number_>0);
     }
 
-    @Override
-    public void cure(int target_id, int[] night_states) {
-        night_states[1] = target_id;
+    public static void cure(int target_id, List<Integer> night_states) {
+        night_states.set(1,target_id);
         cure_number_--;
     }
+
+    public static boolean witch_all_dead(){
+        return (witch_num_ == 0);
+    }
 }
+//---------------------------------------------------------------------------------------------
+//
+//      预言家
+//
+//---------------------------------------------------------------------------------------------
+
+class prophet extends role {
+    private static int prophet_number_ = 0;
+
+    public prophet(int id, String name, int identity) {
+        super(id, name, identity);
+        prophet_number_++;
+    }
+
+    public void out(){
+        prophet_number_--;
+    }
+
+    public static boolean prophet_all_dead(){
+        return (prophet_number_<0);
+    }
+
+
+}
+
+
 
 
 //---------------------------------------------------------------------------------------------
@@ -447,28 +625,28 @@ class witch extends  civilians implements witch_ability{
 //
 //---------------------------------------------------------------------------------------------
 
-interface perish_together_skill {
-    // 自爆技能
-    public void perish_together(int target_id);
-    // 能否使用技能
-    public boolean perish_together_condition(int game_states);
-}
-
-class white_wolf_king extends wolf implements perish_together_skill {
-    public white_wolf_king(int id,String name,int identity,int state) {
-        super(id, name, identity, state);
-    }
-
-    @Override
-    public void perish_together(int target_id) {
-    }
-
-    // 检查调用的玩家是不是死了
-    @Override
-    public boolean perish_together_condition(int game_states) {
-        return this.state_==1;
-    }
-}
+//interface perish_together_skill {
+//    // 自爆技能
+//    public void perish_together(int target_id);
+//    // 能否使用技能
+//    public boolean perish_together_condition(int game_states);
+//}
+//
+//class white_wolf_king extends wolf implements perish_together_skill {
+//    public white_wolf_king(int id,String name,int identity,int state) {
+//        super(id, name, identity, state);
+//    }
+//
+//    @Override
+//    public void perish_together(int target_id) {
+//    }
+//
+//    // 检查调用的玩家是不是死了
+//    @Override
+//    public boolean perish_together_condition(int game_states) {
+//        return this.state_==1;
+//    }
+//}
 
 //---------------------------------------------------------------------------------------------
 //
@@ -476,30 +654,21 @@ class white_wolf_king extends wolf implements perish_together_skill {
 //
 //---------------------------------------------------------------------------------------------
 
-class hunter extends civilians
+class hunter extends role
 {
-    public hunter(int id,String name,int identity,int state) {
-        super(id, name, identity, state);
+
+    public hunter(int id,String name,int identity) {
+        super(id, name, identity);
+        hunter_number_++;
+    }
+    private static int hunter_number_=0;
+    public void out(){
+        hunter_number_--;
+        state_ = 0;
     }
 
-    public void perish_together(int target_id) {
-
-    }
-
-    public boolean perish_together_condition(int game_states) {
-        return this.state_==1;
-    }
-
-    @Override
-    public void out(int mode)
-    {
-        this.state_ = mode;
-        // TODO finish game_state_condition
-        if (perish_together_condition(1));
-        {
-            // TODO 看看UI能怎么和这个类结合再写
-        //    perish_together_skill(target_id);
-        }
+    public static boolean hunter_all_dead(){
+        return (hunter_number_<1);
     }
 }
 
@@ -509,24 +678,27 @@ class hunter extends civilians
 //
 //---------------------------------------------------------------------------------------------
 
-interface guards_ability{
-    public boolean defend_condition(int target_id);
-    public void defend(int target_id,List<Integer> night_states);
-}
-
-class guards extends civilians implements guards_ability{
+class guards extends role {
     private int last_guard_id_;
-    public guards(int id, String name, int identity,int state) {
-        super(id, name, identity, state);
+    public guards(int id, String name, int identity) {
+        super(id, name, identity);
         last_guard_id_ = -1;
+        guard_number_++;
     }
 
-    @Override
+    private static int guard_number_ =0;
+    public void out(){
+        guard_number_--;
+        state_ = 0;
+    }
+    public static boolean hunter_all_dead(){
+        return (guard_number_<1);
+    }
+
     public boolean defend_condition(int target_id) {
         return true;
     }
 
-    @Override
     public void defend(int target_id, List<Integer> night_states) {
         night_states.set(3,target_id);
         last_guard_id_ = target_id;

@@ -3,7 +3,6 @@ package com.example.atry;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -24,7 +23,7 @@ public class GameBoardFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        init_game_state_2_string_text_();
+        init_game_stage_2_string_text_();
     }
 
     private View view_;
@@ -52,8 +51,8 @@ public class GameBoardFragment extends Fragment {
         final Observer<PlayerStateManager.game_board_fragment_manager> board_fragment_observer = new Observer<PlayerStateManager.game_board_fragment_manager>() {
             @Override
             public void onChanged(PlayerStateManager.game_board_fragment_manager game_board_fragment_manager) {
-                int temp = game_board_fragment_manager.getGame_stage_now_();
-                game_notice_board_.setText(game_state_2_string_text_.get(temp));
+                int temp = game_board_fragment_manager.get_game_stage_now();
+                game_stage_2_game_notice_board(temp);
                 time_topic_.setText(date_2_time_topic(game_board_fragment_manager.get_date_()));
             }
         };
@@ -74,30 +73,47 @@ public class GameBoardFragment extends Fragment {
     //
     //---------------------------------------------------------------------------------------------
 
-    private final Map<Integer,Integer> game_state_2_string_text_ = new HashMap<>();
+    private final Map<Integer,Integer> game_stage_2_string_text_ = new HashMap<>();
+    // TODO 规范化阶段
+    private void game_stage_2_game_notice_board(int stage){
+        if (stage ==3)
+        {
+            int killed_id = player_state_manager_.getNight_states_().get(0);
+            String temp = "女巫请睁眼。今晚他（"+String.valueOf(killed_id)+"号位玩家）死了，你要救他吗？";
+            game_notice_board_.setText(temp);
+        }
+        else
+        {
+            game_notice_board_.setText(game_stage_2_string_text_.get(stage));
+        }
+    }
 
-    private void init_game_state_2_string_text_(){
-        game_state_2_string_text_.put(-1,R.string.text_rule);
-        game_state_2_string_text_.put(0,R.string.text_night);
-        game_state_2_string_text_.put(1,R.string.text_wolf);
-        game_state_2_string_text_.put(2,R.string.text_guard);
-        game_state_2_string_text_.put(3,R.string.text_witch);
-        game_state_2_string_text_.put(4,R.string.text_prophet);
-        game_state_2_string_text_.put(5,R.string.text_daytime);
-        game_state_2_string_text_.put(6,R.string.text_exile);
-        game_state_2_string_text_.put(7,R.string.text_white_wolf);
-        game_state_2_string_text_.put(8,R.string.text_hunter);
+    private void init_game_stage_2_string_text_(){
+        game_stage_2_string_text_.put(-1,R.string.text_rule);
+        game_stage_2_string_text_.put(0,R.string.text_night);
+        game_stage_2_string_text_.put(1,R.string.text_wolf);
+        game_stage_2_string_text_.put(2,R.string.text_guard);
+        game_stage_2_string_text_.put(4,R.string.text_witch);
+        game_stage_2_string_text_.put(5,R.string.text_prophet);
+        game_stage_2_string_text_.put(6,R.string.text_daytime);
     }
 
 
     public String date_2_time_topic(List<Integer> game_board_fragment_data){
-        String temp = "第" + game_board_fragment_data.get(0) + "天";
-        if (game_board_fragment_data.get(1)==0)
+        int time = game_board_fragment_data.get(0);
+        String temp= "";
+        if (time != -1)
         {
-            temp += "夜晚";
+            temp = "第" + time + "天";
+            if (game_board_fragment_data.get(1) == 0) {
+                temp += "夜晚";
+            } else {
+                temp += "白天";
+            }
         }
-        else {
-            temp += "白天";
+        else
+        {
+            temp = "游戏准备阶段";
         }
         return(temp);
     }
