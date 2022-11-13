@@ -32,6 +32,8 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
         return new PlayerListViewHolder(view);
     }
 
+    // 将UI和数据绑定
+
     @Override
     public void onBindViewHolder(@NonNull PlayerListViewHolder holder, int position) {
         holder.tv.setText(player_state_list_.get(position));
@@ -43,7 +45,11 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
     }
 
 
-
+    // *********************************************************************************************
+    //
+    //      View Holder
+    //
+    // *********************************************************************************************
     public class PlayerListViewHolder extends RecyclerView.ViewHolder{
         private TextView tv;
 
@@ -61,6 +67,12 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
 
         }
     }
+
+    // *********************************************************************************************
+    //
+    //      点击事件
+    //
+    // *********************************************************************************************
 
     private OnRecyclerItemClickListener entry_OnRecyclerItemClickListener_;
 

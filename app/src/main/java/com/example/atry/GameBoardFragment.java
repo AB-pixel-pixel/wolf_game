@@ -43,8 +43,8 @@ public class GameBoardFragment extends Fragment {
         time_topic_ = view_.findViewById(R.id.time_topic);
 
         // 将数据库的东西和UI绑定
-
         player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
+
         final MutableLiveData<PlayerStateManager.game_board_fragment_manager>  player_state_manager__game_board_fragment_manager_ = player_state_manager_.get_game_board_fragment_manager_();
 
         // Create the observer which updates the UI.
@@ -78,8 +78,8 @@ public class GameBoardFragment extends Fragment {
     private void game_stage_2_game_notice_board(int stage){
         if (stage ==3)
         {
-            int killed_id = player_state_manager_.getNight_states_().get(0);
-            String temp = "女巫请睁眼。今晚他（"+String.valueOf(killed_id)+"号位玩家）死了，你要救他吗？";
+            int killed_id = player_state_manager_.getNight_states_().get(0) +1;
+            String temp = "女巫请睁眼。今晚他（"+String.valueOf(killed_id)+"号位玩家）死了，你要救他吗？(点击取消，表示不救，点击确定表示救)";
             game_notice_board_.setText(temp);
         }
         else
@@ -96,6 +96,8 @@ public class GameBoardFragment extends Fragment {
         game_stage_2_string_text_.put(4,R.string.text_witch);
         game_stage_2_string_text_.put(5,R.string.text_prophet);
         game_stage_2_string_text_.put(6,R.string.text_daytime);
+        game_stage_2_string_text_.put(7,R.string.good_win);
+        game_stage_2_string_text_.put(8,R.string.bad_win);
     }
 
 
