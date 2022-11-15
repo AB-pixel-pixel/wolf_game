@@ -73,10 +73,12 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
                 player_state_manager_.process_confirm_click_input(target_id);
                 // 取消选择
                 player_state_manager_.getPicked_player_().setValue(-1);
-
+                break;
             }
             case R.id.game_cancel_button:
             {
+                int target_id = player_state_manager_.getPicked_player_().getValue();
+                player_state_manager_.process_cancel_click_input(target_id);
                 player_state_manager_.getPicked_player_().setValue(-1);
                 break;
             }

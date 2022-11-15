@@ -28,7 +28,7 @@
     <string name="candidate">当前未选中玩家</string>
     <!-- 最上面的公告栏 -->
     <string name="game_notice_board">公告栏:点击确定开始游戏</string>
-    <string name="time">第一天夜晚</string>
+    <string name="time">游戏准备</string>
 
     <string name="text_rule">根据公告栏的游戏进程安排，通过点击\'玩家名称\'后\'确定\'。此处可测试功能。点击确定开始游戏！</string>
     <string name="text_night">夜晚请闭眼</string>
@@ -52,10 +52,14 @@
     <string name="guards_dead">守卫已出局</string>
     <string name="wolf_lose">狼人输了</string>
     <string name="no_cure">女巫没解药了，下一个环节</string>
-    <string name="no_poison">女巫没毒药了</string>
+    <string name="no_poison">女巫不能用毒药</string>
     <string name="exit">淘汰成功</string>
     <string name="good_win">好人阵营胜利</string>
     <string name="bad_win">狼人阵营胜利</string>
+    <string name="good_god_dead">神被屠边</string>
+    <string name="good_people_dead">平民全死了</string>
+    <string name="back">返回上一步</string>
+    <string name="next_stage">下一阶段</string>
     <!-- -->
 
 

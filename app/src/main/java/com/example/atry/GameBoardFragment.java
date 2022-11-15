@@ -38,19 +38,18 @@ public class GameBoardFragment extends Fragment {
             view_ = inflater.inflate(R.layout.fragment_game_notice_board, container,false);
         }
 
-
         game_notice_board_ = view_.findViewById(R.id.game_notice_board);
         time_topic_ = view_.findViewById(R.id.time_topic);
 
         // 将数据库的东西和UI绑定
         player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
 
-        final MutableLiveData<PlayerStateManager.game_board_fragment_manager>  player_state_manager__game_board_fragment_manager_ = player_state_manager_.get_game_board_fragment_manager_();
+        final MutableLiveData<PlayerStateManager.game_stage_manager>  player_state_manager__game_board_fragment_manager_ = player_state_manager_.get_game_board_fragment_manager_data_();
 
         // Create the observer which updates the UI.
-        final Observer<PlayerStateManager.game_board_fragment_manager> board_fragment_observer = new Observer<PlayerStateManager.game_board_fragment_manager>() {
+        final Observer<PlayerStateManager.game_stage_manager> board_fragment_observer = new Observer<PlayerStateManager.game_stage_manager>() {
             @Override
-            public void onChanged(PlayerStateManager.game_board_fragment_manager game_board_fragment_manager) {
+            public void onChanged(PlayerStateManager.game_stage_manager game_board_fragment_manager) {
                 int temp = game_board_fragment_manager.get_game_stage_now();
                 game_stage_2_game_notice_board(temp);
                 time_topic_.setText(date_2_time_topic(game_board_fragment_manager.get_date_()));
@@ -58,7 +57,7 @@ public class GameBoardFragment extends Fragment {
         };
 
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
-        player_state_manager_.get_game_board_fragment_manager_().observe(getActivity(), board_fragment_observer);
+        player_state_manager_.get_game_board_fragment_manager_data_().observe(getActivity(), board_fragment_observer);
 
         return view_;
     }
@@ -104,7 +103,7 @@ public class GameBoardFragment extends Fragment {
     public String date_2_time_topic(List<Integer> game_board_fragment_data){
         int time = game_board_fragment_data.get(0);
         String temp= "";
-        if (time != -1)
+        if (time != 0)
         {
             temp = "第" + time + "天";
             if (game_board_fragment_data.get(1) == 0) {

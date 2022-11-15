@@ -43,9 +43,9 @@ public class PlayerStateManager extends ViewModel {
         // 初始化与游戏公告栏交流数据的容器
         init_game_board_fragment_manager();
         // 初始化点击事件
-        init_click_process_player_button_();
+        init_click_button_();
 
-        game_board_fragment_manager_ = new game_board_fragment_manager();
+        game_stage_manager_ = new game_stage_manager();
 
     }// 结束构造函数
 
@@ -58,7 +58,7 @@ public class PlayerStateManager extends ViewModel {
     //---------------------------------------------------------------------------------------------
 
     private final MutableLiveData<player_list_fragment> player_list_fragment_data_ =
-            new MutableLiveData<player_list_fragment>();
+            new MutableLiveData<>();
 
     private player_list_fragment player_list_fragment_;
 
@@ -74,9 +74,17 @@ public class PlayerStateManager extends ViewModel {
     MutableLiveData<Map<Integer,String>> death_list_data_ = new MutableLiveData<>();
 
     private void write_death_message_map(List<Integer> death_list){
-        Map<Integer,String> death_map = new HashMap<>();
-        death_map = player_list_fragment_.player_out_message(death_list);
+        Map<Integer,String> death_map;
+        death_map = player_list_fragment_.update_player_list(death_list);
         death_list_data_.setValue(death_map);
+        player_list_fragment_data_.setValue(player_list_fragment_);
+    }
+
+    private void write_death_message_map(int death_id){
+        Map<Integer,String> death_map;
+        death_map = player_list_fragment_.update_player_list(death_id);
+        death_list_data_.setValue(death_map);
+        player_list_fragment_data_.setValue(player_list_fragment_);
     }
 
     public MutableLiveData<Map<Integer,String> > get_death_list_data_() {
@@ -91,16 +99,20 @@ public class PlayerStateManager extends ViewModel {
             init_visual_player_data_list(player_str_list);
         }
 
-        public void set_visual_player_data_list_item_(List<String> visual_player_data_list_) {
-            this.visual_player_data_list_ = visual_player_data_list_;
-        }
 
-        public Map<Integer,String>  player_out_message(List<Integer> ids){
+        public Map<Integer,String> update_player_list(List<Integer> ids){
             Map<Integer,String> message = new HashMap<>();
             for (int i:ids){
-                String text_msg = role_list_.get(i).out().toVisualText();
+                String text_msg = role_list_.get(i).toVisualText();
                 message.put(i,text_msg);
             }
+            return message;
+        }
+
+        public Map<Integer,String> update_player_list(int id){
+            Map<Integer,String> message = new HashMap<>();
+            String text_msg = role_list_.get(id).toVisualText(); // 获取当前的状态
+            message.put(id,text_msg);
             return message;
         }
 
@@ -141,7 +153,7 @@ public class PlayerStateManager extends ViewModel {
                         break;
                     }
                     case 0:{
-                        role temp = new role(i,player_name,identity_num);
+                        role temp = new civilian(i,player_name,identity_num);
                         role_list_.add(temp);
                         break;
                     }
@@ -180,24 +192,15 @@ public class PlayerStateManager extends ViewModel {
     //
     //---------------------------------------------------------------------------------------------
 
-    private final MutableLiveData<Integer> picked_player_ = new MutableLiveData<Integer>();
+    private final MutableLiveData<Integer> picked_player_ = new MutableLiveData<>();
 
-    public void init_click_process_player_button_(){
+    public void init_click_button_(){
         picked_player_.setValue(-1);
     }
     public MutableLiveData<Integer> getPicked_player_(){
         return picked_player_;
     }
 
-    public void game_next_stage(){
-        game_board_fragment_manager_ = get_game_board_fragment_manager_().getValue().update_stage_counter();
-        get_game_board_fragment_manager_().setValue(game_board_fragment_manager_);
-    }
-
-    public void game_next_stage(int stage){
-        game_board_fragment_manager_ = get_game_board_fragment_manager_().getValue().update_stage_counter(stage);
-        get_game_board_fragment_manager_().setValue(game_board_fragment_manager_);
-    }
 
     //---------------------------------------------------------------------------------------------
     //
@@ -208,8 +211,7 @@ public class PlayerStateManager extends ViewModel {
     // 通过点击事件的处理管理游戏流程
     // target_id 为 -1时，输入的用户为空
     public void process_confirm_click_input(int target_id){
-        Log.i("target_id",String.valueOf(target_id));
-        switch (game_board_fragment_manager_.game_stage_now_){
+        switch (game_stage_manager_.game_stage_now_){
             case -1:{
                 game_next_stage();
                 message_to_user(R.string.game_on);
@@ -245,19 +247,21 @@ public class PlayerStateManager extends ViewModel {
             }
             case 2:{
                 if (target_id == -1) {
-                    if (!guards.defend_condition(target_id)){
+                    if (guards.guard_all_dead()){
                         game_next_stage();
                     }
                     else{
                         message_to_user(R.string.no_picked_player);
                     }
                 }else{
-                    if(guards.defend_condition(target_id)){
+                    if(guards.guard_all_dead()){
+                        message_to_user(R.string.guards_dead);
+                        game_next_stage();
+                    }else if(guards.defend_condition(target_id)){
                         guards.defend(target_id,night_states_);
                         game_next_stage();
                     }else{
-                        message_to_user(R.string.guards_dead);
-                        game_next_stage();
+                        message_to_user(R.string.no_picked_player);
                     }
                 }
                 break;
@@ -266,14 +270,15 @@ public class PlayerStateManager extends ViewModel {
                 int today = get_date_();
                 if (witch.cure_condition())
                 {
-                    witch.cure(target_id,night_states_,today);
+                    witch.cure(night_states_,today);
+                    Log.i("witch","女巫救人了");
                     game_next_stage();
                 }
                 else{
                     if(target_id!=-1){
                         message_to_user(R.string.no_cure);
-                        game_next_stage();
                     }
+                    game_next_stage();
                 }
                 break;
             }
@@ -291,8 +296,10 @@ public class PlayerStateManager extends ViewModel {
                     if (target_id != -1)
                     {
                         message_to_user(R.string.no_poison);
+                        game_next_stage();
                     }
                     else{
+                        message_to_user(R.string.next_stage);
                         game_next_stage();
                     }
                 }
@@ -307,30 +314,80 @@ public class PlayerStateManager extends ViewModel {
             case 6:{
                 if (target_id != -1)
                 {
-                    update_player_list_fragment();
+                    // update_player_list_fragment();
+                    // 淘汰
                     player_list_fragment_.role_list_.get(target_id).out();
+                    write_death_message_map(target_id);
                     message_to_user(R.string.exit);
+                    player_list_fragment_data_.setValue(player_list_fragment_);
+                    checking_point();    // 判断胜负
                 }
                 else {
-                    // 判断胜负
-                    if(wolf.wolf_all_dead())
-                    {
-                        game_next_stage(7);
-                    } else if(prophet.prophet_all_dead()&&hunter.hunter_all_dead()&&witch.witch_all_dead()){
-                        game_next_stage(8);
-                    } else if(civilian.civilian_all_dead()){
-                        game_next_stage(8);
-                    }
+                    game_next_stage();
                 }
-
-                game_next_stage();
                 break;
             }
             case 7:{
                 message_to_user(R.string.good_win);
+                break;
             }
             case 8:{
                 message_to_user(R.string.bad_win);
+                break;
+            }
+        }
+    }
+
+    // 判断胜负
+    private void checking_point(){
+        if(wolf.wolf_all_dead())
+        {
+            game_next_stage(7);
+        } else if(prophet.prophet_all_dead()&&hunter.hunter_all_dead()&&witch.witch_all_dead()&&guards.guard_all_dead()){
+            game_next_stage(8);
+            message_to_user(R.string.good_god_dead);
+        } else if(civilian.civilian_all_dead()){
+            game_next_stage(8);
+            message_to_user(R.string.good_people_dead);
+        }
+    }
+
+
+
+    // 取消按钮
+    public void process_cancel_click_input(int target_id){
+        Log.i("cancel_click",String.valueOf(target_id));
+        switch(game_stage_manager_.game_stage_now_){
+            case -1:{
+                game_next_stage();
+                message_to_user(R.string.game_on);
+                break;
+            }
+            case 0:{
+                // TODO 返回白天
+                boolean back = game_back_day_stage();
+                if (back)
+                {
+                    message_to_user(R.string.back);
+                }
+                else{
+                    game_next_stage();
+                }
+                break;
+            }
+            case 1:
+            case 2: {
+                if (target_id==-1){
+                    message_to_user(R.string.no_picked_player);
+                }
+                break;
+            }
+            case 3:
+            case 4:
+            case 5:
+            case 6:{
+                game_next_stage();
+                break;
             }
         }
     }
@@ -350,12 +407,8 @@ public class PlayerStateManager extends ViewModel {
         return night_states_;
     }
 
-    public void setNight_states_(List<Integer> night_states_) {
-        this.night_states_ = night_states_;
-    }
-
     public void process_night_states(){
-        List<Integer> night_out_id = new ArrayList<>();
+        List<Integer> out_ids = new ArrayList<>();
 
         int wolf_kill = night_states_.get(0);
         int witch_save = night_states_.get(1);
@@ -364,25 +417,25 @@ public class PlayerStateManager extends ViewModel {
 
         if (witch_poison != -1) {
             // 女巫毒人
-            night_out_id.add(witch_poison);
+            out_ids.add(witch_poison);
             if (wolf_kill != guard) {
                 // 守卫没对人
-                night_states_.add(wolf_kill);
+                out_ids.add(wolf_kill);
             }
         } else if (witch_save != -1) {
             // 女巫救人
             if (wolf_kill == guard) {
-                night_out_id.add(wolf_kill);
+                out_ids.add(wolf_kill);
             }
         } else {
             // 女巫啥事没做
             if (wolf_kill != guard) {
-                night_out_id.add(wolf_kill);
+                out_ids.add(wolf_kill);
             }
         }
         // 淘汰情况
-        for (int i =0;i < night_out_id.size();i++){
-            player_list_fragment_.role_list_.get(night_out_id.get(i)).out();
+        for (int i =0;i < out_ids.size();i++){
+            player_list_fragment_.role_list_.get(out_ids.get(i)).out();
         }
 
         // 刷新夜晚的情况
@@ -390,47 +443,74 @@ public class PlayerStateManager extends ViewModel {
             night_states_.set(i, -1);
         }
 
-        write_death_message_map(night_out_id);
+        write_death_message_map(out_ids);
+    }
+
+    //---------------------------------------------------------------------------------------------
+    //
+    //      管理游戏的时间（阶段）
+    //
+    //---------------------------------------------------------------------------------------------
+
+
+    public void game_next_stage(){
+        get_game_board_fragment_manager_data_().setValue(game_stage_manager_.update_stage_manager_local());
+    }
+
+    // 用于从黑夜返回白天
+    public boolean game_back_day_stage(){
+        if(get_game_board_fragment_manager_data_().getValue().game_stage_now_!=0)
+        {
+            game_stage_manager_ = get_game_board_fragment_manager_data_().getValue().update_stage_manager_local(-1);
+            get_game_board_fragment_manager_data_().setValue(game_stage_manager_);
+            return true;
+        }
+        else
+            return false;
+    }
+
+    public void game_next_stage(int stage){
+        Log.i("stage",String.valueOf(stage));
+        game_stage_manager_ = get_game_board_fragment_manager_data_().getValue().update_stage_manager_local(stage);
+        get_game_board_fragment_manager_data_().setValue(game_stage_manager_);
     }
 
 
+
     //---------------------------------------------------------------------------------------------
     //
-    //      管理公告栏文本的数据
+    //      通过游戏时间（阶段），管理公告栏文本的数据
     //
     //---------------------------------------------------------------------------------------------
 
-    private MutableLiveData<game_board_fragment_manager> game_board_fragment_manager_data_ = new MutableLiveData<>();
+    private MutableLiveData<game_stage_manager> game_board_fragment_manager_data_ = new MutableLiveData<>();
 
     private void init_game_board_fragment_manager(){
-        game_board_fragment_manager_data_.setValue(new game_board_fragment_manager());
+        game_board_fragment_manager_data_.setValue(new game_stage_manager());
     }
 
-    public MutableLiveData<game_board_fragment_manager> get_game_board_fragment_manager_(){
+    public MutableLiveData<game_stage_manager> get_game_board_fragment_manager_data_(){
         return game_board_fragment_manager_data_;
     }
-    private game_board_fragment_manager game_board_fragment_manager_;
+
+    private game_stage_manager game_stage_manager_;
 
     private int get_date_(){
-        return game_board_fragment_manager_data_.getValue().get_date_().get(0);
+        return game_stage_manager_.get_date_().get(0);
     }
 
-    class game_board_fragment_manager
+    class game_stage_manager
     {
 
-        game_board_fragment_manager(){
+        game_stage_manager(){
             init_game_stage_now_();
             init_data();
         }
 
-        game_board_fragment_manager(List<Integer> date, int game_stage)
+        game_stage_manager(List<Integer> date, int game_stage)
         {
             game_stage_now_ = game_stage;
             date_ = date;
-        }
-
-        public  game_board_fragment_manager get_instance_game_board_fragment_manager_(game_board_fragment_manager copy){
-            return new game_board_fragment_manager(copy.get_date_(),copy.game_stage_now_);
         }
 
         // **
@@ -438,30 +518,26 @@ public class PlayerStateManager extends ViewModel {
         // *
         public int game_stage_now_;
         public final int regular_round_num_ = 7;
-        public game_board_fragment_manager update_stage_counter(){
-            // 让流程在0到5的区间里流动
+        public game_stage_manager update_stage_manager_local(){
+            // 让流程在0到6的区间里流动
             game_stage_now_ = (game_stage_now_ + 1 )%regular_round_num_;
             // 更新日期
             update_date();
             return this;
         }
 
-        public game_board_fragment_manager update_stage_counter(int stage){
-            setGame_stage_now_(stage);
+        public game_stage_manager update_stage_manager_local(int stage){
+            game_stage_now_ = stage;
             update_date();
             return this;
         }
+
 
         private void init_game_stage_now_(){game_stage_now_ = -1;}
 
         public int get_game_stage_now()
         {
             return game_stage_now_;
-        }
-
-        public void setGame_stage_now_(int stage)
-        {
-            game_stage_now_ = stage;
         }
 
         // **
@@ -475,13 +551,12 @@ public class PlayerStateManager extends ViewModel {
         }
 
         private void update_date(){
-            if (game_stage_now_ ==0)
+            if (game_stage_now_ == regular_round_num_-1)
             {
-                int data_now = date_.get(0)+1;
-                date_.set(0,data_now);
+                date_.set(0,date_.get(0)+1);
             }
             // 控制日期
-            if (game_stage_now_<5)
+            if (game_stage_now_<regular_round_num_-1)
             {
                 date_.set(1,0);
             }
@@ -517,7 +592,7 @@ public class PlayerStateManager extends ViewModel {
 
     private void init_translation_map() {
         // 方便数字转为可视化的字符(身份）
-        int2identity_map.put(-2,"狼人");
+        int2identity_map.put(-2,"白狼王");
         int2identity_map.put(-1,"狼人");
         int2identity_map.put(0,"平民");
         int2identity_map.put(1,"守卫");
@@ -525,7 +600,7 @@ public class PlayerStateManager extends ViewModel {
         int2identity_map.put(3,"预言家");
         int2identity_map.put(4,"女巫");
         // 方便数字转为可视化的字符（生命状态）
-        int2state_map.put(0,"普通出局");
+        int2state_map.put(0,"出局");
         int2state_map.put(1,"活着");
         int2state_map.put(2,"毒死");
         int2state_map.put(3,"狼王自爆");
@@ -561,11 +636,11 @@ class role {
         name_ = name;
         identity_ = identity;
         state_ = 1;
-
     }
 
     // 定义出局的模式
     public role out(){
+        Log.w("role","role_out");
         state_ = 0;
         return this;
     }
@@ -584,17 +659,20 @@ class civilian extends role{
 
     public civilian(int id, String name, int identity) {
         super(id, name, identity);
+        Log.i("civilians_number_",String.valueOf(civilians_number_));
         civilians_number_++;
     }
 
     public role out(){
+        Log.i("civilians_number",String.valueOf(civilians_number_));
         civilians_number_--;
         state_=0;
         return  this;
     }
 
     public static boolean civilian_all_dead(){
-        return (civilians_number_<1);
+        Log.i("civilians_number_",String.valueOf(civilians_number_));
+        return (civilians_number_==0);
     }
 }
 
@@ -623,11 +701,12 @@ class wolf extends role {
     public role out(){
         state_ = 0;
         wolf_number_--;
+        Log.i("wolf_number",String.valueOf(wolf_number_));
         return this;
     }
 
     public static boolean wolf_all_dead(){
-        return (wolf_number_<1);
+        return (wolf_number_==0);
     }
 }
 
@@ -647,7 +726,6 @@ class witch extends role {
         poison_number_  = 1;
         cure_number_ = 1;
         witch_num_++;
-
         cure_day_ = -2;
     }
 
@@ -667,8 +745,8 @@ class witch extends role {
         return (cure_number_>0);
     }
 
-    public static void cure(int target_id, List<Integer> night_states,int cure_day) {
-        night_states.set(1,target_id);
+    public static void cure(List<Integer> night_states,int cure_day) {
+        night_states.set(1,1);
         cure_number_--;
         cure_day_ =  cure_day;
     }
@@ -679,6 +757,7 @@ class witch extends role {
 
     public role out(){
         witch_num_--;
+        Log.i("witch",String.valueOf(witch_num_));
         state_=0;
         return this;
     }
@@ -699,12 +778,13 @@ class prophet extends role {
 
     public role out(){
         prophet_number_--;
+        Log.i("prophet",String.valueOf(prophet_number_));
         state_ =0;
         return this;
     }
 
     public static boolean prophet_all_dead(){
-        return (prophet_number_<0);
+        return (prophet_number_==0);
     }
 
 
@@ -758,12 +838,13 @@ class hunter extends role
     private static int hunter_number_=0;
     public role out(){
         hunter_number_--;
+        Log.i("hunter",String.valueOf(hunter_number_));
         state_ = 0;
         return this;
     }
 
     public static boolean hunter_all_dead(){
-        return (hunter_number_<1);
+        return (hunter_number_==0);
     }
 }
 
@@ -786,8 +867,8 @@ class guards extends role {
         state_ = 0;
         return this;
     }
-    public static boolean hunter_all_dead(){
-        return (guard_number_<1);
+    public static boolean guard_all_dead(){
+        return (guard_number_==0);
     }
 
     public static boolean defend_condition(int target_id) {

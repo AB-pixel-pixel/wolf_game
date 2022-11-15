@@ -74,10 +74,10 @@ public class GamePlayerListFragment extends Fragment {
                 });
             }
         };
-        //adapter_.notifyItemChanged();
 
         death_map.observe(getActivity(),death_list_observer);
 
+        // RecyclerView的布局
         GridLayoutManager gridLayoutManager= new GridLayoutManager(base_view.getContext(),1);
         player_state_list_RV_.setLayoutManager(gridLayoutManager);
 
