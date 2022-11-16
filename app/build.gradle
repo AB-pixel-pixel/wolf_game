@@ -54,9 +54,4 @@ dependencies {
     // Java language implementation
     implementation "androidx.fragment:fragment:$fragment_version"
 
-
-
-
-
-
 }

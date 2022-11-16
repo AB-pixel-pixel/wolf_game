@@ -1,9 +1,12 @@
 package com.example.atry;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -22,6 +25,7 @@ public class IdentitySettingActivity extends AppCompatActivity implements View.O
     private SharedPreferences identity_saved_param_;
     private SharedPreferences.Editor identity_saved_param_editor_;
 
+
     // identity_map_ 作为存储preferences的中介，与数据增删改查直接接触, key 为身份（String）,value为身份的数量（int）
     private Map<String,Integer> identity_map_;
     // 用于存放ListView的文本内容，直接与Adapter交互，内容排序与identity_keys
@@ -36,7 +40,7 @@ public class IdentitySettingActivity extends AppCompatActivity implements View.O
     private EditText identity_number_input_;
     private ListView identity_list_view_;
     private Button ensure_identity_button_;
-    private final boolean test = true;
+    private boolean test;
 
 
 
@@ -66,8 +70,24 @@ public class IdentitySettingActivity extends AppCompatActivity implements View.O
 
         // 使用SharedPreferences存储身份配置
         identity_saved_param_ = getSharedPreferences("last_game_setting",MODE_PRIVATE);
-
         identity_saved_param_editor_ = identity_saved_param_.edit();
+
+        // 初始化技术
+        // 用于记录初始化与否
+        SharedPreferences init_counter_ = getSharedPreferences("identity_init_counter", MODE_PRIVATE);
+        SharedPreferences.Editor init_counter_editor_ = init_counter_.edit();
+        int init_counter_int_ = init_counter_.getInt("identity_counter",0);
+        Log.i("counter",String.valueOf(init_counter_int_));
+        if (init_counter_int_ == 0){
+            test = true;
+            init_counter_editor_.putInt("identity_counter",1);
+            init_counter_editor_.commit();
+        }else{
+            test = false;
+        }
+
+
+
         // 测试用：标准12人局配置
         if (test)
         {
@@ -193,6 +213,6 @@ public class IdentitySettingActivity extends AppCompatActivity implements View.O
         });
         identity_saved_param_editor_.commit();
     }
-
-
 }
+
+

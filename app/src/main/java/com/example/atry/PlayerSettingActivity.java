@@ -4,13 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ public class PlayerSettingActivity extends AppCompatActivity implements View.OnC
     private List<String> player_list_;
 
     // 填充测试用的数据
-    private boolean TEST = true;
+    private boolean test = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +54,26 @@ public class PlayerSettingActivity extends AppCompatActivity implements View.OnC
         player_list_param_editor_ = player_list_param_.edit();
 
 
+
+
+        // 用于记录初始化与否
+        SharedPreferences init_counter_ = getSharedPreferences("player_init_counter", MODE_PRIVATE);
+        SharedPreferences.Editor init_counter_editor_ = init_counter_.edit();
+        int init_counter_int_ = init_counter_.getInt("player_counter",0);
+        Log.i("counter",String.valueOf(init_counter_int_));
+        if (init_counter_int_ == 0){
+            test = true;
+            init_counter_editor_.putInt("player_counter",1);
+            init_counter_editor_.commit();
+        }else{
+            test = false;
+        }
+
+
+
+
         // 用12人局的数据作测试，此处进行数据填充
-        if(TEST)
+        if(test)
         {
             player_list_param_editor_.putInt("玩家1",1);
             player_list_param_editor_.putInt("玩家2",1);
