@@ -7,6 +7,7 @@
     <string name="play">游戏开局</string>
     <string name="identity_setting_topic">身份配置</string>
     <string name="player_setting">玩家配置</string>
+    <string name="copyright">SCNU凌绍彬</string>
 
     <!-- 玩家名称配置页面 -->
     <string name="enter_name_des">此处输入玩家姓名，并按下确定</string>
