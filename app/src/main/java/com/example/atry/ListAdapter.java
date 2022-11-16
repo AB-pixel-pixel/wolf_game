@@ -7,19 +7,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.w3c.dom.Text;
-
 import java.util.List;
 
-public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.PlayerListViewHolder>{
+public class ListAdapter extends RecyclerView.Adapter<ListAdapter.PlayerListViewHolder>{
 
 
-    private List<String> player_state_list_;
-    private Context context_;
-    private PlayerListViewHolder view_holder_;
+    private final List<String> player_state_list_;
+    private final Context context_;
 
 
-    public PlayerListAdapter(List<String> player_states,Context context) {
+    public ListAdapter(List<String> player_states, Context context) {
         this.player_state_list_ = player_states;
         context_ = context;
     }
@@ -51,7 +48,7 @@ public class PlayerListAdapter extends RecyclerView.Adapter<PlayerListAdapter.Pl
     //
     // *********************************************************************************************
     public class PlayerListViewHolder extends RecyclerView.ViewHolder{
-        private TextView tv;
+        private final TextView tv;
 
         public PlayerListViewHolder(@NonNull View itemView) {
             super(itemView);

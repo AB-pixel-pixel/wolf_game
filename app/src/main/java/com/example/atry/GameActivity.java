@@ -33,10 +33,6 @@ public class GameActivity extends AppCompatActivity {
     private List<Integer> identity_int_list_;
     private List<String> identity_str_list_;
 
-    // 玩家状态（数据库）
-    private PlayerStateManager player_state_manager_;
-    private GamePlayerListFragment plyaer_state_list_fragment_;
-
     // 图标关联输入
     private int click_id_;
 
@@ -92,7 +88,8 @@ public class GameActivity extends AppCompatActivity {
         }
 
         // 初始化ModelView
-        player_state_manager_ = new ViewModelProvider(this).get(PlayerStateManager.class);
+        // 玩家状态（数据库）
+        PlayerStateManager player_state_manager_ = new ViewModelProvider(this).get(PlayerStateManager.class);
         // 使用整理后的数据初始化玩家信息（序号，身份等）
         player_state_manager_.init(identity_int_list_,player_str_list_);
 

@@ -64,12 +64,10 @@ public class PlayerSettingActivity extends AppCompatActivity implements View.OnC
         if (init_counter_int_ == 0){
             test = true;
             init_counter_editor_.putInt("player_counter",1);
-            init_counter_editor_.commit();
+            init_counter_editor_.apply();
         }else{
             test = false;
         }
-
-
 
 
         // 用12人局的数据作测试，此处进行数据填充
@@ -98,9 +96,9 @@ public class PlayerSettingActivity extends AppCompatActivity implements View.OnC
         save_player_button.setOnClickListener(this);
 
         // 初始化玩家名单及其adapter,为ListView准备
-        player_list_ =new ArrayList<String>(player_list_param_.getAll().keySet());
+        player_list_ =new ArrayList<>(player_list_param_.getAll().keySet());
 
-        adapter_ = new ArrayAdapter<String>(PlayerSettingActivity.this,
+        adapter_ = new ArrayAdapter<>(PlayerSettingActivity.this,
                 android.R.layout.simple_list_item_1, player_list_);
 
         // 注册ListView

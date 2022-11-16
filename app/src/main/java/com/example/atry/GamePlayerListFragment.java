@@ -26,7 +26,7 @@ public class GamePlayerListFragment extends Fragment {
 
     // 玩家的状态
     private RecyclerView player_state_list_RV_;
-    private PlayerListAdapter adapter_;
+    private ListAdapter adapter_;
     private Context context_;
     private TextView picked_player_text_view_;
     //
@@ -57,7 +57,7 @@ public class GamePlayerListFragment extends Fragment {
         picked_player_text_view_ = (TextView) base_view.findViewById(R.id.choice_player);
 
         // 初始化 Adapter
-        adapter_ = new PlayerListAdapter(visual_player_data_list_,this.getContext());
+        adapter_ = new ListAdapter(visual_player_data_list_,this.getContext());
         player_state_list_RV_.setAdapter(adapter_);
 
 

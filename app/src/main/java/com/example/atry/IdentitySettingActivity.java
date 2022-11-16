@@ -193,7 +193,7 @@ public class IdentitySettingActivity extends AppCompatActivity implements View.O
             else
             {
                 // 无身份重复的操作
-                identity_visual_list.add(str_number+identity);
+                identity_visual_list.add(identity+"   "+str_number+"位");
                 identity_keys_.add(identity);
             }
 
