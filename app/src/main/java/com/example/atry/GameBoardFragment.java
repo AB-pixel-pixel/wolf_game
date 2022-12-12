@@ -42,22 +42,22 @@ public class GameBoardFragment extends Fragment {
         time_topic_ = view_.findViewById(R.id.time_topic);
 
         // 将数据库的东西和UI绑定
-        player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
+        player_state_manager_ = new ViewModelProvider(getActivity()).get(gameStateManager.class);
 
-        final MutableLiveData<PlayerStateManager.game_stage_manager>  player_state_manager__game_board_fragment_manager_ = player_state_manager_.get_game_board_fragment_manager_data_();
+        final MutableLiveData<gameStateManager.game_stage_manager>  player_state_manager__game_board_fragment_manager_ = player_state_manager_.get_board_data_();
 
         // Create the observer which updates the UI.
-        final Observer<PlayerStateManager.game_stage_manager> board_fragment_observer = new Observer<PlayerStateManager.game_stage_manager>() {
+        final Observer<gameStateManager.game_stage_manager> board_fragment_observer = new Observer<gameStateManager.game_stage_manager>() {
             @Override
-            public void onChanged(PlayerStateManager.game_stage_manager game_board_fragment_manager) {
+            public void onChanged(gameStateManager.game_stage_manager game_board_fragment_manager) {
                 int temp = game_board_fragment_manager.get_game_stage_now();
                 game_stage_2_game_notice_board(temp);
-                time_topic_.setText(date_2_time_topic(game_board_fragment_manager.get_date_()));
+                time_topic_.setText(date_2_time_topic(game_board_fragment_manager.get_day_time()));
             }
         };
 
         // Observe the LiveData, passing in this activity as the LifecycleOwner and the observer.
-        player_state_manager_.get_game_board_fragment_manager_data_().observe(getActivity(), board_fragment_observer);
+        player_state_manager_.get_board_data_().observe(getActivity(), board_fragment_observer);
 
         return view_;
     }
@@ -124,7 +124,7 @@ public class GameBoardFragment extends Fragment {
     //      LiveData的观察者
     //
     //---------------------------------------------------------------------------------------------
-    private PlayerStateManager player_state_manager_;
+    private gameStateManager player_state_manager_;
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {

@@ -27,33 +27,34 @@ import java.util.Map;
 
 
 public class GameActivity extends AppCompatActivity {
-    private static final boolean TEST = false;
-    // 关于身份和玩家的列表，以索引判断身份和玩家
-    private List<String> player_str_list_;
-    private List<Integer> identity_int_list_;
     private List<String> identity_str_list_;
-
-    // 图标关联输入
-    private int click_id_;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        init();
+        assignRoles();
     }
 
-    private void init()
+    /**
+     * 1. 读取保存的配置
+     * 2. 分配角色,打乱身份和姓名的列表。将索引相同的属性绑定在一起。
+     * 3. 初始化gameStateManager
+     * 4. 建立监听机制
+     */
+    private void assignRoles()
     {
 
-        // 使用SharedPreferences存储身份配置
+        // 读取存入的信息
         SharedPreferences identity_saved_param_ = getSharedPreferences("last_game_setting",MODE_PRIVATE);
         SharedPreferences player_list_param_ = getSharedPreferences("player_list",MODE_PRIVATE);
 
-        // player_name存玩家名字，identity_str_list存放身份
-        player_str_list_ = new ArrayList<String>(player_list_param_.getAll().keySet());
+
+        // 存玩家名字
+        List<String> player_name_list_ = new ArrayList<>(player_list_param_.getAll().keySet());
+        // identity_str_list存放身份
         identity_str_list_ = new ArrayList<>();
-        identity_int_list_ = new ArrayList<>();
+        List<Integer> identity_int_list_;
         Map<String,Integer> identity_number_map = new HashMap<String,Integer>((Map<? extends String, ? extends Integer>) identity_saved_param_.getAll());
         identity_number_map.entrySet().forEach(entry->{
             for (int num = entry.getValue();num >0;num--)
@@ -62,8 +63,32 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
-        // 将STRING 转为int
-        // TODO: 如果要拓展程序，需要在这里修改硬编码
+        // 打乱两个list
+        Collections.shuffle(player_name_list_);
+        Collections.shuffle(identity_str_list_);
+
+        // 角色的编码转换
+        identity_int_list_ = identity_str2int(identity_str_list_);
+
+
+        // 初始化管理器，并且
+        gameStateManager game_state_manager = new ViewModelProvider(this).get(gameStateManager.class);
+        // 使用整理后的数据初始化玩家信息（序号，身份等）
+        game_state_manager.init(identity_int_list_, player_name_list_);
+        // 通过监听机制建立的，游戏通知的发送器
+        final Observer<Integer> message_to_user_observer = s -> Snackbar.make(findViewById(R.id.player_state_list_fragment), s,
+                Snackbar.LENGTH_SHORT)
+                .show();
+
+        game_state_manager.get_message_data().observe(this,message_to_user_observer);
+
+    }
+
+
+    // 将identity: str->int，方便后续的比较和存储
+    private List<Integer> identity_str2int(List<String> identity_str_list)
+    {
+        // TODO: 如果要拓展可用角色，需要在这里修改硬编码
         Map<String,Integer> identity2int_map = new HashMap<>();
         identity2int_map.put("白狼王",-2);
         identity2int_map.put("狼人",-1);
@@ -73,66 +98,17 @@ public class GameActivity extends AppCompatActivity {
         identity2int_map.put("预言家",3);
         identity2int_map.put("女巫",4);
 
-        // 打乱两个list
-        Collections.shuffle(player_str_list_);
-        Collections.shuffle(identity_str_list_);
-
-        // 转换
-        identity_int_list_ = identity_str2int(identity2int_map,identity_str_list_);
-        // TEST
-        if (TEST)
-        {
-            for (String i : player_str_list_) {
-                Log.i("检查player", i);
-            }
-        }
-
-        // 初始化ModelView
-        // 玩家状态（数据库）
-        PlayerStateManager player_state_manager_ = new ViewModelProvider(this).get(PlayerStateManager.class);
-        // 使用整理后的数据初始化玩家信息（序号，身份等）
-        player_state_manager_.init(identity_int_list_,player_str_list_);
-
-
-
-        // 监听通知
-        final Observer<Integer> message_to_user_observer = new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer s) {
-                Snackbar.make(findViewById(R.id.player_state_list_fragment), s,
-                        Snackbar.LENGTH_SHORT)
-                        .show();
-            }
-        };
-
-        player_state_manager_.get_message_data().observe(this,message_to_user_observer);
-
-
-
-
-    }
-
-
-    // 将identity: str->int，方便后续的比较和存储
-    private List<Integer> identity_str2int(Map<String, Integer> identity2int, List<String> identity_str_list)
-    {
         List<Integer> identity_int_list = new ArrayList<>();
         for(int i =0;i < identity_str_list.size();i++)
         {
             String temp_str = identity_str_list.get(i);
-            int temp_int = identity2int.get(temp_str);
+            int temp_int = identity2int_map.getOrDefault(temp_str,-100);
+            if (temp_int==-100){
+
+            }
             identity_int_list.add(temp_int);
         }
         return identity_int_list;
     }
 
-
-    public List<String> getPlayerStateList(){
-        return player_str_list_;
-    }
-
-    public void set_click_id_(int id)
-    {
-        click_id_ = id;
-    }
 }

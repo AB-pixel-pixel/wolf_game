@@ -43,7 +43,7 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
         confirm_button_.setOnClickListener(this);
         cancel_button_ = (Button) root_.findViewById(R.id.game_cancel_button);
         cancel_button_.setOnClickListener(this);
-        player_state_manager_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
+        player_state_manager_ = new ViewModelProvider(getActivity()).get(gameStateManager.class);
 
         return root_;
     }
@@ -54,7 +54,7 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
     //
     //---------------------------------------------------------------------------------------------
 
-    private PlayerStateManager player_state_manager_;
+    private gameStateManager player_state_manager_;
 
 
     @Override
@@ -69,17 +69,15 @@ public class GameButtonBarFragment extends Fragment implements View.OnClickListe
         {
             case R.id.game_confirm_button:
             {
-                int target_id = player_state_manager_.getPicked_player_().getValue();
-                player_state_manager_.process_confirm_click_input(target_id);
+                player_state_manager_.process_confirm_click_input();
                 // 取消选择
-                player_state_manager_.getPicked_player_().setValue(-1);
+                player_state_manager_.getPicked_player_data_().setValue(-1);
                 break;
             }
             case R.id.game_cancel_button:
             {
-                int target_id = player_state_manager_.getPicked_player_().getValue();
-                player_state_manager_.process_cancel_click_input(target_id);
-                player_state_manager_.getPicked_player_().setValue(-1);
+                player_state_manager_.process_cancel_click_input();
+                player_state_manager_.getPicked_player_data_().setValue(-1);
                 break;
             }
         }

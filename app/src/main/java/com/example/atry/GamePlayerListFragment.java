@@ -47,8 +47,8 @@ public class GamePlayerListFragment extends Fragment {
         View base_view = inflater.inflate(R.layout.fragment_player_state_list,container,false);
 
         // 读取存储的数据
-        player_state_manager_vm_ = new ViewModelProvider(getActivity()).get(PlayerStateManager.class);
-        visual_player_data_list_= player_state_manager_vm_.get_player_list_fragment().getVisual_player_data_list_();
+        player_state_manager_vm_ = new ViewModelProvider(getActivity()).get(gameStateManager.class);
+        visual_player_data_list_= player_state_manager_vm_.get_player_list_manager_().getVisual_player_data_list_();
 
 
         player_state_list_RV_ = base_view.findViewById(R.id.player_state_list_recycler_view);
@@ -81,7 +81,7 @@ public class GamePlayerListFragment extends Fragment {
         GridLayoutManager gridLayoutManager= new GridLayoutManager(base_view.getContext(),1);
         player_state_list_RV_.setLayoutManager(gridLayoutManager);
 
-        player_pick_manager_ = player_state_manager_vm_.getPicked_player_();
+        player_pick_manager_ = player_state_manager_vm_.getPicked_player_data_();
         adapter_.setRecyclerItemClickListener(position ->{
                 player_pick_manager_.setValue(position);
                 }
@@ -112,13 +112,13 @@ public class GamePlayerListFragment extends Fragment {
     //
     //---------------------------------------------------------------------------------------------
 
-    private PlayerStateManager player_state_manager_vm_;
+    private gameStateManager player_state_manager_vm_;
 
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        player_state_manager_vm_ = new ViewModelProvider(requireActivity()).get(PlayerStateManager.class);
+        player_state_manager_vm_ = new ViewModelProvider(requireActivity()).get(gameStateManager.class);
 
     }
 }
