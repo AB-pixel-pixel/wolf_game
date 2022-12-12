@@ -728,6 +728,7 @@ class wolf extends Role {
 //      女巫
 //
 //---------------------------------------------------------------------------------------------
+
 class witch extends Role {
     private static int poison_number_;
     private static int cure_day_;
