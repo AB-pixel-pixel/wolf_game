@@ -129,7 +129,6 @@ public class IdentitySettingActivity extends AppCompatActivity implements View.O
             @Override
             public void onItemClick(AdapterView<?> parent,View view, int position, long id)
             {
-
                 // TODO： 使用缓存等机制优化程序，减少开销
                 // TODO： 将删除的逻辑写入同一个函数
                 // 删除元素

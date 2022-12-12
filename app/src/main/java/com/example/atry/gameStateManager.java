@@ -46,7 +46,6 @@ public class gameStateManager extends ViewModel {
 
         // 当前的游戏阶段
         // -1未开始游戏，0进入夜晚，1 狼人刀人，2 守卫使用能力，3 女巫救人，4 女巫毒人，5 预言家验身份， 6 白天
-        // TODO 改为private
         public int game_stage_now_;
 
         // 初始化，0天，夜晚
